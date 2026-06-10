@@ -36,8 +36,7 @@ public final class SeamGroupSet{
         label = new SeamEntityGroup<>(WorldLabel.class, false, true);
         powerGraph = new SeamEntityGroup<>(PowerGraphUpdaterc.class, false, false);
 
-        bullet.resize(-finalWorldBounds, -finalWorldBounds, w, h);
-        unit.resize(-finalWorldBounds, -finalWorldBounds, w, h);
+        resize(width, height);
     }
 
     private SeamGroupSet(
@@ -83,5 +82,29 @@ public final class SeamGroupSet{
         Groups.label,
         Groups.powerGraph
         );
+    }
+
+    public void resize(int width, int height){
+        float finalWorldBounds = Vars.finalWorldBounds;
+        float w = width * Vars.tilesize + finalWorldBounds * 2f;
+        float h = height * Vars.tilesize + finalWorldBounds * 2f;
+
+        bullet.resize(-finalWorldBounds, -finalWorldBounds, w, h);
+        unit.resize(-finalWorldBounds, -finalWorldBounds, w, h);
+    }
+
+    public void clear(){
+        all.clear();
+        player.clear();
+        bullet.clear();
+        unit.clear();
+        build.clear();
+        sync.clear();
+        draw.clear();
+        fire.clear();
+        puddle.clear();
+        weather.clear();
+        label.clear();
+        powerGraph.clear();
     }
 }

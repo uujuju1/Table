@@ -7,16 +7,37 @@ import mindustry.entities.*;
 import mindustry.gen.*;
 
 public final class SeamRuntimeStack{
-    private final Seq<SeamRuntime> stack = new Seq<>();
-    private final Seq<ContextSnapshot> snapshots = new Seq<>();
+    private final Seq<Frame> stack = new Seq<>();
 
     public SeamRuntime current(){
-        return stack.isEmpty() ? null : stack.peek();
+        return stack.isEmpty() ? null : stack.peek().runtime;
+    }
+
+    public SeamPhase phase(){
+        return stack.isEmpty() ? null : stack.peek().phase;
+    }
+
+    public boolean active(){
+        return !stack.isEmpty();
     }
 
     public void enter(SeamRuntime runtime){
-        snapshots.add(new ContextSnapshot());
-        stack.add(runtime);
+        enter(runtime, SeamPhase.manual);
+    }
+
+    public void enter(SeamRuntime runtime, SeamPhase phase){
+        if(runtime == null){
+            throw new NullPointerException("runtime");
+        }
+
+        if(phase == null){
+            throw new NullPointerException("phase");
+        }
+
+        runtime.requireLoaded();
+
+        ContextSnapshot snapshot = new ContextSnapshot();
+        stack.add(new Frame(runtime, phase, snapshot));
 
         Vars.world = runtime.world;
         Vars.state = runtime.state;
@@ -37,14 +58,33 @@ public final class SeamRuntimeStack{
     }
 
     public void exit(){
-        if(stack.isEmpty()) return;
+        if(stack.isEmpty()){
+            throw new IllegalStateException("Cannot exit Seam runtime context: stack is empty.");
+        }
 
-        stack.pop();
-        ContextSnapshot snapshot = snapshots.pop();
-        snapshot.restore();
+        Frame frame = stack.pop();
+        frame.snapshot.restore();
     }
 
-    private static class ContextSnapshot{
+    public void exitAll(){
+        while(!stack.isEmpty()){
+            exit();
+        }
+    }
+
+    private static final class Frame{
+        final SeamRuntime runtime;
+        final SeamPhase phase;
+        final ContextSnapshot snapshot;
+
+        Frame(SeamRuntime runtime, SeamPhase phase, ContextSnapshot snapshot){
+            this.runtime = runtime;
+            this.phase = phase;
+            this.snapshot = snapshot;
+        }
+    }
+
+    private static final class ContextSnapshot{
         private final World world;
         private final GameState state;
         private final EntityCollisions collisions;
@@ -62,7 +102,7 @@ public final class SeamRuntimeStack{
         private final EntityGroup<WorldLabel> label;
         private final EntityGroup<PowerGraphUpdaterc> powerGraph;
 
-        public ContextSnapshot(){
+        ContextSnapshot(){
             this.world = Vars.world;
             this.state = Vars.state;
             this.collisions = Vars.collisions;
@@ -81,23 +121,23 @@ public final class SeamRuntimeStack{
             this.powerGraph = Groups.powerGraph;
         }
 
-        public void restore(){
-            Vars.world = this.world;
-            Vars.state = this.state;
-            Vars.collisions = this.collisions;
+        void restore(){
+            Vars.world = world;
+            Vars.state = state;
+            Vars.collisions = collisions;
 
-            Groups.all = this.all;
-            Groups.player = this.player;
-            Groups.bullet = this.bullet;
-            Groups.unit = this.unit;
-            Groups.build = this.build;
-            Groups.sync = this.sync;
-            Groups.draw = this.draw;
-            Groups.fire = this.fire;
-            Groups.puddle = this.puddle;
-            Groups.weather = this.weather;
-            Groups.label = this.label;
-            Groups.powerGraph = this.powerGraph;
+            Groups.all = all;
+            Groups.player = player;
+            Groups.bullet = bullet;
+            Groups.unit = unit;
+            Groups.build = build;
+            Groups.sync = sync;
+            Groups.draw = draw;
+            Groups.fire = fire;
+            Groups.puddle = puddle;
+            Groups.weather = weather;
+            Groups.label = label;
+            Groups.powerGraph = powerGraph;
         }
     }
 }

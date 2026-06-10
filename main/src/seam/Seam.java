@@ -7,6 +7,9 @@ import mindustry.mod.*;
 
 public class Seam extends Mod{
     public static final SeamRuntimeStack stack = new SeamRuntimeStack();
+    public static final SeamRuntimeRegistry runtimes = new SeamRuntimeRegistry();
+    public static final SeamEngine engine = new SeamEngine(runtimes, stack);
+
     public static SeamRuntime mainRuntime;
 
     public Seam(){
@@ -16,15 +19,23 @@ public class Seam extends Mod{
     @Override
     public void init(){
         SeamBootstrapValidator.validate();
+
         refreshMainRuntime();
 
         Events.on(WorldLoadEvent.class, event -> refreshMainRuntime());
-        Events.on(ResetEvent.class, event -> refreshMainRuntime());
+
+        Events.on(ResetEvent.class, event -> {
+            runtimes.clearSubworlds();
+            refreshMainRuntime();
+        });
+
+        Events.run(Trigger.update, engine::update);
 
         Log.info("[Seam] Core initialized successfully.");
     }
 
     public static void refreshMainRuntime(){
-        mainRuntime = SeamRuntime.wrapCurrent(0, "main");
+        runtimes.refreshMain();
+        mainRuntime = runtimes.main();
     }
 }
