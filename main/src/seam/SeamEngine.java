@@ -106,29 +106,71 @@ public final class SeamEngine{
             SeamRuntimeValidator.validateRuntime(runtime, false);
         }
 
+        SeamRuntimeUpdatePolicy policy = runtime.updatePolicy();
+
         run(runtime, SeamPhase.updatePre, () -> {
             runtime.state.tick++;
         });
 
-        run(runtime, SeamPhase.updateBuildings, () -> {
-            Groups.build.update();
-        });
+        if(policy.teams){
+            run(runtime, SeamPhase.updateTeams, () -> {
+                runtime.state.teams.updateTeamStats();
+            });
+        }
 
-        run(runtime, SeamPhase.updatePower, () -> {
-            Groups.powerGraph.update();
-        });
+        if(policy.buildings){
+            run(runtime, SeamPhase.updateBuildings, () -> {
+                Groups.build.update();
+            });
+        }
 
-        run(runtime, SeamPhase.updatePuddles, () -> {
-            Groups.puddle.update();
-        });
+        if(policy.power){
+            run(runtime, SeamPhase.updatePower, () -> {
+                Groups.powerGraph.update();
+            });
+        }
 
-        run(runtime, SeamPhase.updateFires, () -> {
-            Groups.fire.update();
-        });
+        if(policy.puddles){
+            run(runtime, SeamPhase.updatePuddles, () -> {
+                Groups.puddle.update();
+            });
+        }
 
-        run(runtime, SeamPhase.updateWeather, () -> {
-            Groups.weather.update();
-        });
+        if(policy.fires){
+            run(runtime, SeamPhase.updateFires, () -> {
+                Groups.fire.update();
+            });
+        }
+
+        if(policy.weather){
+            run(runtime, SeamPhase.updateWeather, () -> {
+                Groups.weather.update();
+            });
+        }
+
+        if(policy.bullets){
+            run(runtime, SeamPhase.updateBullets, () -> {
+                Groups.bullet.update();
+            });
+        }
+
+        if(policy.units){
+            run(runtime, SeamPhase.updateUnits, () -> {
+                Groups.unit.update();
+            });
+        }
+
+        if(policy.sync){
+            run(runtime, SeamPhase.updateSync, () -> {
+                Groups.sync.update();
+            });
+        }
+
+        if(policy.draw){
+            run(runtime, SeamPhase.updateDraw, () -> {
+                Groups.draw.update();
+            });
+        }
 
         run(runtime, SeamPhase.updatePost, () -> {
             if(runtime.validateOnUpdate()){

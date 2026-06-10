@@ -16,7 +16,7 @@ public final class SeamRuntime{
 
     private SeamRuntimeStatus status = SeamRuntimeStatus.created;
 
-    private boolean updateEnabled = true;
+    private SeamRuntimeUpdatePolicy updatePolicy;
     private boolean validateOnUpdate = true;
 
     public SeamRuntime(SeamRuntimeConfig config){
@@ -29,6 +29,7 @@ public final class SeamRuntime{
         this.id = config.id;
         this.name = config.name;
         this.kind = config.kind;
+        this.updatePolicy = config.updatePolicy;
 
         this.world = new World();
         this.state = new GameState();
@@ -45,6 +46,7 @@ public final class SeamRuntime{
         .name(name)
         .size(width, height)
         .kind(SeamRuntimeKind.subworld)
+        .updatePolicy(SeamRuntimeUpdatePolicy.buildingsOnly())
         .build()
         );
     }
@@ -56,7 +58,8 @@ public final class SeamRuntime{
     World world,
     GameState state,
     SeamGroupSet groups,
-    EntityCollisions collisions
+    EntityCollisions collisions,
+    SeamRuntimeUpdatePolicy updatePolicy
     ){
         this.id = id;
         this.name = name;
@@ -65,8 +68,8 @@ public final class SeamRuntime{
         this.state = state;
         this.groups = groups;
         this.collisions = collisions;
+        this.updatePolicy = updatePolicy;
         this.status = SeamRuntimeStatus.loaded;
-        this.updateEnabled = kind != SeamRuntimeKind.main;
     }
 
     public static SeamRuntime wrapCurrentMain(){
@@ -77,7 +80,8 @@ public final class SeamRuntime{
         Vars.world,
         Vars.state,
         SeamGroupSet.wrapCurrent(),
-        Vars.collisions
+        Vars.collisions,
+        SeamRuntimeUpdatePolicy.disabled()
         );
     }
 
@@ -115,16 +119,28 @@ public final class SeamRuntime{
         return SeamLifecycle.worldReady(world);
     }
 
-    public boolean updateEnabled(){
-        return updateEnabled && loaded() && !main();
+    public SeamRuntimeUpdatePolicy updatePolicy(){
+        return updatePolicy;
     }
 
-    public void updateEnabled(boolean updateEnabled){
-        if(main() && updateEnabled){
+    public void updatePolicy(SeamRuntimeUpdatePolicy updatePolicy){
+        if(updatePolicy == null){
+            throw new NullPointerException("updatePolicy");
+        }
+
+        if(main() && updatePolicy.enabled){
             throw new IllegalStateException("Main runtime cannot be updated by SeamEngine.");
         }
 
-        this.updateEnabled = updateEnabled;
+        this.updatePolicy = updatePolicy;
+    }
+
+    public boolean updateEnabled(){
+        return updatePolicy.enabled && loaded() && !main();
+    }
+
+    public void updateEnabled(boolean updateEnabled){
+        updatePolicy(updatePolicy.withEnabled(updateEnabled));
     }
 
     public boolean validateOnUpdate(){
@@ -168,7 +184,7 @@ public final class SeamRuntime{
 
         groups.clear();
         status = SeamRuntimeStatus.disposed;
-        updateEnabled = false;
+        updatePolicy = updatePolicy.withEnabled(false);
     }
 
     private void setStatus(SeamRuntimeStatus status){
@@ -182,6 +198,7 @@ public final class SeamRuntime{
         ", name='" + name + '\'' +
         ", kind=" + kind +
         ", status=" + status +
+        ", updatePolicy=" + updatePolicy +
         '}';
     }
 }
