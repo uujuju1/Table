@@ -12,8 +12,6 @@ import mindustry.graphics.*;
 import mindustry.world.*;
 
 public final class SeamRuntimeWorldRenderer{
-    private static final float rangePad = 0.001f;
-
     private final SeamRuntime runtime;
     private final SeamRenderService rendering;
     private final SeamDrawScope drawScope;
@@ -80,62 +78,24 @@ public final class SeamRuntimeWorldRenderer{
             return false;
         }
 
-        scheduleRenderRange(view);
-        scheduleFloor(view, hostBounds, settings, stats);
-        scheduleShadows(view, hostBounds, settings, stats);
-        queueVanillaRuntimeDraw(view, hostBounds, batch, settings, stats);
+        Draw.draw(view.hostLayerZ(), () -> renderIsolated(view, hostBounds, batch, settings, stats));
 
         return true;
     }
 
-    private void scheduleRenderRange(SeamView view){
-        float min = view.hostZ(Layer.min);
-        float max = view.hostZ(Layer.max);
-        float center = (min + max) / 2f;
-        float range = Math.abs(max - min) / 2f + rangePad;
-
-        Draw.drawRange(
-        center,
-        range,
-        () -> drawScope.beginRenderRange(runtime, view, SeamPhase.renderWorld),
-        drawScope::endRenderRange
-        );
-    }
-
-    private void scheduleFloor(SeamView view, Rect hostBounds, SeamWorldDrawSettings settings, SeamWorldDrawStats stats){
-        if(!settings.drawFloors){
-            return;
-        }
-
-        Draw.draw(view.hostZ(Layer.floor), () -> {
-            SeamFloorDrawResult result = rendering.drawFloor(view.id(), hostBounds);
-            stats.addFloorResult(result);
-        });
-    }
-
-    private void scheduleShadows(SeamView view, Rect hostBounds, SeamWorldDrawSettings settings, SeamWorldDrawStats stats){
-        if(!settings.drawStaticShadows){
-            return;
-        }
-
-        Draw.draw(view.hostZ(Layer.block - 1f), () -> {
-            shadows.draw(view, hostBounds, viewerTeam());
-
-            stats.shadowMasksPrepared++;
-            stats.staticShadowsDrawn += shadows.visibleShadowCount();
-        });
-    }
-
-    private void queueVanillaRuntimeDraw(
+    private void renderIsolated(
     SeamView view,
     Rect hostBounds,
     SeamRenderViewBatch batch,
     SeamWorldDrawSettings settings,
     SeamWorldDrawStats stats
     ){
-        drawScope.beginQueue(runtime, view, SeamPhase.renderWorld);
+        drawScope.beginIsolated(runtime, view, SeamPhase.renderWorld);
 
         try{
+            queueFloor(view, hostBounds, settings, stats);
+            queueShadows(view, hostBounds, settings, stats);
+
             if(settings.drawBlocks){
                 drawBlocksVanilla(batch, settings, stats);
             }
@@ -147,9 +107,35 @@ public final class SeamRuntimeWorldRenderer{
             if(settings.drawLights){
                 stats.lightsSkipped += batch.lightCount();
             }
+
+            stats.isolatedBatchesDrawn++;
         }finally{
-            drawScope.endQueue();
+            drawScope.endIsolated();
         }
+    }
+
+    private void queueFloor(SeamView view, Rect hostBounds, SeamWorldDrawSettings settings, SeamWorldDrawStats stats){
+        if(!settings.drawFloors){
+            return;
+        }
+
+        Draw.draw(Layer.floor, () -> {
+            SeamFloorDrawResult result = rendering.drawFloor(view.id(), hostBounds);
+            stats.addFloorResult(result);
+        });
+    }
+
+    private void queueShadows(SeamView view, Rect hostBounds, SeamWorldDrawSettings settings, SeamWorldDrawStats stats){
+        if(!settings.drawStaticShadows){
+            return;
+        }
+
+        Draw.draw(Layer.block - 1f, () -> {
+            shadows.draw(view, hostBounds, viewerTeam());
+
+            stats.shadowMasksPrepared++;
+            stats.staticShadowsDrawn += shadows.visibleShadowCount();
+        });
     }
 
     private void drawBlocksVanilla(SeamRenderViewBatch batch, SeamWorldDrawSettings settings, SeamWorldDrawStats stats){

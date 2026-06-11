@@ -177,7 +177,7 @@ public final class SeamWorldDraw{
         Seq<SeamView> copy = views.all();
 
         copy.sort((a, b) -> {
-            int layer = Float.compare(a.zWindowBase(), b.zWindowBase());
+            int layer = Float.compare(a.hostLayerZ(), b.hostLayerZ());
 
             if(layer != 0){
                 return layer;

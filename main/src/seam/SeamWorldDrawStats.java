@@ -6,6 +6,7 @@ public final class SeamWorldDrawStats{
     public int viewsSkipped;
 
     public int batchesFailed;
+    public int isolatedBatchesDrawn;
 
     public int floorChunksVisited;
     public int floorChunksCached;
@@ -44,6 +45,7 @@ public final class SeamWorldDrawStats{
         viewsSkipped = 0;
 
         batchesFailed = 0;
+        isolatedBatchesDrawn = 0;
 
         floorChunksVisited = 0;
         floorChunksCached = 0;
@@ -94,6 +96,7 @@ public final class SeamWorldDrawStats{
         copy.viewsDrawn = viewsDrawn;
         copy.viewsSkipped = viewsSkipped;
         copy.batchesFailed = batchesFailed;
+        copy.isolatedBatchesDrawn = isolatedBatchesDrawn;
 
         copy.floorChunksVisited = floorChunksVisited;
         copy.floorChunksCached = floorChunksCached;
@@ -128,6 +131,7 @@ public final class SeamWorldDrawStats{
         ", viewsDrawn=" + viewsDrawn +
         ", viewsSkipped=" + viewsSkipped +
         ", batchesFailed=" + batchesFailed +
+        ", isolatedBatchesDrawn=" + isolatedBatchesDrawn +
         ", floorChunksVisited=" + floorChunksVisited +
         ", floorChunksCached=" + floorChunksCached +
         ", floorLayersDrawn=" + floorLayersDrawn +
