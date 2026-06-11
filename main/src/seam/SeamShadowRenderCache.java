@@ -10,7 +10,6 @@ import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.*;
-import mindustry.content.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -37,6 +36,9 @@ public final class SeamShadowRenderCache{
     private int visibleShadowCount;
     private int lastViewerTeamId = -2;
 
+    private int lastTileChanges = -1;
+    private int lastFloorChanges = -1;
+
     public SeamShadowRenderCache(SeamRuntime runtime){
         if(runtime == null){
             throw new NullPointerException("runtime");
@@ -62,6 +64,33 @@ public final class SeamShadowRenderCache{
         shadowEvents.clear();
         visibleShadowCount = 0;
         lastViewerTeamId = -2;
+        lastTileChanges = -1;
+        lastFloorChanges = -1;
+    }
+
+    public void applyInvalidations(Seq<SeamRenderInvalidation> invalidations){
+        if(disposed){
+            throw new IllegalStateException("SeamShadowRenderCache is disposed.");
+        }
+
+        if(invalidations == null || invalidations.isEmpty()){
+            return;
+        }
+
+        for(SeamRenderInvalidation invalidation : invalidations){
+            if(invalidation == null){
+                continue;
+            }
+
+            if(invalidation.full()
+            || invalidation.has(SeamRenderInvalidationType.shadow)
+            || invalidation.has(SeamRenderInvalidationType.block)
+            || invalidation.has(SeamRenderInvalidationType.tile)
+            || invalidation.has(SeamRenderInvalidationType.proximity)){
+                invalidate();
+                return;
+            }
+        }
     }
 
     public void draw(SeamView view, Rect hostBounds, Team viewerTeam){
@@ -85,6 +114,16 @@ public final class SeamShadowRenderCache{
 
         int viewerTeamId = viewerTeam == null ? -1 : viewerTeam.id;
 
+        /*
+         * This is the reliable invalidation path.
+         * Subworld mutations often happen with world.setGenerating(true), so vanilla TileChangeEvent is deliberately suppressed.
+         * The runtime world counters are the canonical signal that the shadow buffer cannot be trusted anymore.
+         */
+        if(lastTileChanges != runtime.world.tileChanges || lastFloorChanges != runtime.world.floorChanges){
+            built = false;
+            shadowEvents.clear();
+        }
+
         if(!built || lastViewerTeamId != viewerTeamId){
             rebuild(viewerTeam);
         }else{
@@ -102,6 +141,9 @@ public final class SeamShadowRenderCache{
         runtime.requireWorldReady();
 
         lastViewerTeamId = viewerTeam == null ? -1 : viewerTeam.id;
+        lastTileChanges = runtime.world.tileChanges;
+        lastFloorChanges = runtime.world.floorChanges;
+
         visibleShadowCount = 0;
         shadowEvents.clear();
 
@@ -114,6 +156,10 @@ public final class SeamShadowRenderCache{
             Draw.color(BlockRenderer.blendShadowColor);
 
             for(Tile tile : runtime.world.tiles){
+                if(tile == null){
+                    continue;
+                }
+
                 markInitiallyVisible(tile, viewerTeam);
 
                 if(tile.block().displayShadow(tile) && (tile.build == null || tile.build.wasVisible)){
@@ -292,7 +338,7 @@ public final class SeamShadowRenderCache{
         float x2 = Math.min(worldW, out.x + out.width);
         float y2 = Math.min(worldH, out.y + out.height);
 
-        if(x2 < x1 || y2 < y1){
+        if(x2 <= x1 || y2 <= y1){
             out.set(0f, 0f, 0f, 0f);
         }else{
             out.set(x1, y1, x2 - x1, y2 - y1);
@@ -330,6 +376,8 @@ public final class SeamShadowRenderCache{
         ", visibleShadowCount=" + visibleShadowCount +
         ", pendingShadowEvents=" + shadowEvents.size +
         ", lastViewerTeamId=" + lastViewerTeamId +
+        ", lastTileChanges=" + lastTileChanges +
+        ", lastFloorChanges=" + lastFloorChanges +
         '}';
     }
 }

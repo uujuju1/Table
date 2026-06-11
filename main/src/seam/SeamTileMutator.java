@@ -1,6 +1,7 @@
 package seam;
 
 import arc.math.geom.*;
+import mindustry.*;
 import mindustry.content.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -45,12 +46,15 @@ public final class SeamTileMutator{
         try{
             Block previous = tile.block();
 
+            removeIndexerEntries(runtime, tile);
+
             runtime.world.setGenerating(true);
             tile.setBlock(block, team, rotation);
 
             runtime.world.setGenerating(previousGenerating);
             runtime.world.tileChanges++;
 
+            addIndexerEntries(runtime, tile);
             updateProximity(runtime, tile);
 
             runtime.renderInvalidation.blockChanged(runtime, x, y, previous, tile.block());
@@ -89,12 +93,15 @@ public final class SeamTileMutator{
         try{
             Block previous = tile.block();
 
+            removeIndexerEntries(runtime, tile);
+
             runtime.world.setGenerating(true);
             tile.setBlock(Blocks.air);
 
             runtime.world.setGenerating(previousGenerating);
             runtime.world.tileChanges++;
 
+            addIndexerEntries(runtime, tile);
             updateProximity(runtime, tile);
 
             runtime.renderInvalidation.blockChanged(runtime, x, y, previous, tile.block());
@@ -180,11 +187,15 @@ public final class SeamTileMutator{
                 return SeamTerrainResult.success(runtime, 0, floor, "unchanged");
             }
 
+            Floor previous = tile.floor();
+
             runtime.world.setGenerating(true);
             tile.setFloor(floor);
 
             runtime.world.setGenerating(previousGenerating);
             runtime.world.floorChanges++;
+
+            updateFloorIndexer(runtime, tile, previous, floor);
 
             if(tile.build != null){
                 tile.build.onProximityUpdate();
@@ -220,10 +231,16 @@ public final class SeamTileMutator{
             runtime.world.setGenerating(true);
 
             for(Tile tile : runtime.world.tiles){
-                if(tile != null && tile.floor() != floor){
-                    tile.setFloor(floor);
-                    changed++;
+                if(tile == null || tile.floor() == floor){
+                    continue;
                 }
+
+                Floor previous = tile.floor();
+
+                tile.setFloor(floor);
+                changed++;
+
+                updateFloorIndexer(runtime, tile, previous, floor);
             }
 
             runtime.world.setGenerating(previousGenerating);
@@ -233,7 +250,13 @@ public final class SeamTileMutator{
                 runtime.renderInvalidation.markFull();
             }
 
-            return SeamTerrainResult.success(runtime, changed, floor, "floor filled");
+            for(Building build : Groups.build){
+                if(build != null){
+                    build.onProximityUpdate();
+                }
+            }
+
+            return SeamTerrainResult.success(runtime, changed, floor, "floor fill");
         }catch(Throwable throwable){
             return SeamTerrainResult.failure(runtime, floor, throwable);
         }finally{
@@ -241,21 +264,101 @@ public final class SeamTileMutator{
         }
     }
 
+    private static void removeIndexerEntries(SeamRuntime runtime, Tile tile){
+        if(runtime == null || tile == null || Vars.indexer == null){
+            return;
+        }
+
+        if(!owns(runtime, tile)){
+            return;
+        }
+
+        try{
+            if(tile.build != null){
+                Tile center = tile.build.tile;
+
+                if(center != null && owns(runtime, center)){
+                    Vars.indexer.removeIndex(center);
+                    return;
+                }
+            }
+
+            Vars.indexer.removeIndex(tile);
+        }catch(Throwable ignored){
+        }
+    }
+
+    private static void addIndexerEntries(SeamRuntime runtime, Tile tile){
+        if(runtime == null || tile == null || Vars.indexer == null){
+            return;
+        }
+
+        if(!owns(runtime, tile)){
+            return;
+        }
+
+        try{
+            if(tile.build != null){
+                Tile center = tile.build.tile;
+
+                if(center != null && owns(runtime, center)){
+                    Vars.indexer.addIndex(center);
+                    return;
+                }
+            }
+
+            Vars.indexer.addIndex(tile);
+        }catch(Throwable ignored){
+        }
+    }
+
+    private static void updateFloorIndexer(SeamRuntime runtime, Tile tile, Floor previous, Floor current){
+        if(runtime == null || tile == null || Vars.indexer == null){
+            return;
+        }
+
+        if(!owns(runtime, tile)){
+            return;
+        }
+
+        /*
+         * Vanilla floor index updates are normally driven by TileFloorChangeEvent.
+         * Seam suppresses that event with world.setGenerating(true), so the safe fallback is
+         * to refresh the full tile index. This also keeps floor/wall ore state sane enough
+         * for vanilla consumers without emitting global events.
+         */
+        try{
+            Vars.indexer.removeIndex(tile);
+            Vars.indexer.addIndex(tile);
+        }catch(Throwable ignored){
+        }
+    }
+
+    private static boolean owns(SeamRuntime runtime, Tile tile){
+        return runtime != null
+        && tile != null
+        && runtime.worldReady()
+        && tile.x >= 0
+        && tile.y >= 0
+        && tile.x < runtime.world.width()
+        && tile.y < runtime.world.height()
+        && runtime.world.tile(tile.x, tile.y) == tile;
+    }
+
     private static void updateProximity(SeamRuntime runtime, Tile tile){
-        if(runtime == null || tile == null || !runtime.worldReady()){
+        if(runtime == null || tile == null){
             return;
         }
 
         if(tile.build != null){
             tile.build.updateProximity();
-            return;
         }
 
         for(Point2 point : Geometry.d4){
-            Building other = runtime.world.build(tile.x + point.x, tile.y + point.y);
+            Tile other = runtime.world.tile(tile.x + point.x, tile.y + point.y);
 
-            if(other != null){
-                other.onProximityUpdate();
+            if(other != null && other.build != null){
+                other.build.updateProximity();
             }
         }
     }

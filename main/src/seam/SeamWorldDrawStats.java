@@ -24,8 +24,16 @@ public final class SeamWorldDrawStats{
     public int statusDrawn;
 
     public int drawEntitiesQueued;
+    public int drawEntityDuplicatesSkipped;
 
+    public int lightsQueued;
+    public int lightPasses;
     public int lightsSkipped;
+
+    public int bloomCaptures;
+    public int bloomRenders;
+    public int animatedShieldPasses;
+    public int animatedBuildBeamPasses;
 
     public long startedNanos;
     public long endedNanos;
@@ -63,8 +71,16 @@ public final class SeamWorldDrawStats{
         statusDrawn = 0;
 
         drawEntitiesQueued = 0;
+        drawEntityDuplicatesSkipped = 0;
 
+        lightsQueued = 0;
+        lightPasses = 0;
         lightsSkipped = 0;
+
+        bloomCaptures = 0;
+        bloomRenders = 0;
+        animatedShieldPasses = 0;
+        animatedBuildBeamPasses = 0;
 
         startedNanos = 0L;
         endedNanos = 0L;
@@ -95,6 +111,7 @@ public final class SeamWorldDrawStats{
         copy.viewsVisited = viewsVisited;
         copy.viewsDrawn = viewsDrawn;
         copy.viewsSkipped = viewsSkipped;
+
         copy.batchesFailed = batchesFailed;
         copy.isolatedBatchesDrawn = isolatedBatchesDrawn;
 
@@ -114,8 +131,16 @@ public final class SeamWorldDrawStats{
         copy.statusDrawn = statusDrawn;
 
         copy.drawEntitiesQueued = drawEntitiesQueued;
+        copy.drawEntityDuplicatesSkipped = drawEntityDuplicatesSkipped;
 
+        copy.lightsQueued = lightsQueued;
+        copy.lightPasses = lightPasses;
         copy.lightsSkipped = lightsSkipped;
+
+        copy.bloomCaptures = bloomCaptures;
+        copy.bloomRenders = bloomRenders;
+        copy.animatedShieldPasses = animatedShieldPasses;
+        copy.animatedBuildBeamPasses = animatedBuildBeamPasses;
 
         copy.startedNanos = startedNanos;
         copy.endedNanos = endedNanos;
@@ -145,7 +170,14 @@ public final class SeamWorldDrawStats{
         ", teamOverlaysDrawn=" + teamOverlaysDrawn +
         ", statusDrawn=" + statusDrawn +
         ", drawEntitiesQueued=" + drawEntitiesQueued +
+        ", drawEntityDuplicatesSkipped=" + drawEntityDuplicatesSkipped +
+        ", lightsQueued=" + lightsQueued +
+        ", lightPasses=" + lightPasses +
         ", lightsSkipped=" + lightsSkipped +
+        ", bloomCaptures=" + bloomCaptures +
+        ", bloomRenders=" + bloomRenders +
+        ", animatedShieldPasses=" + animatedShieldPasses +
+        ", animatedBuildBeamPasses=" + animatedBuildBeamPasses +
         '}';
     }
 }

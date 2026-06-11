@@ -10,6 +10,7 @@ public final class SeamRenderService{
 
     private final IntMap<SeamRuntimeRenderCache> blockCaches = new IntMap<>();
     private final IntMap<SeamFloorRenderCache> floorCaches = new IntMap<>();
+    private final IntMap<Seq<SeamRenderInvalidation>> lastInvalidations = new IntMap<>();
 
     public SeamRenderService(SeamRuntimeRegistry runtimes, SeamViewRegistry views){
         if(runtimes == null){
@@ -60,12 +61,22 @@ public final class SeamRenderService{
         return cache;
     }
 
-    public void syncRuntime(int runtimeId){
+    public Seq<SeamRenderInvalidation> lastInvalidations(int runtimeId){
+        Seq<SeamRenderInvalidation> invalidations = lastInvalidations.get(runtimeId);
+
+        if(invalidations == null){
+            return new Seq<>();
+        }
+
+        return invalidations.copy();
+    }
+
+    public Seq<SeamRenderInvalidation> syncRuntime(int runtimeId){
         SeamRuntime runtime = runtimes.get(runtimeId);
 
         if(runtime == null || runtime.disposed()){
             removeRuntime(runtimeId);
-            return;
+            return new Seq<>();
         }
 
         SeamRuntimeRenderCache blockCache = cache(runtimeId);
@@ -74,6 +85,9 @@ public final class SeamRenderService{
         Seq<SeamRenderInvalidation> invalidations = blockCache.applyPendingInvalidations();
 
         floorCache.applyInvalidations(invalidations);
+        lastInvalidations.put(runtimeId, invalidations.copy());
+
+        return invalidations;
     }
 
     public boolean hasCache(int runtimeId){
@@ -92,6 +106,8 @@ public final class SeamRenderService{
         if(floorCache != null){
             floorCache.dispose();
         }
+
+        lastInvalidations.remove(runtimeId);
     }
 
     public void clear(){
@@ -105,6 +121,7 @@ public final class SeamRenderService{
 
         blockCaches.clear();
         floorCaches.clear();
+        lastInvalidations.clear();
     }
 
     public SeamRenderViewBatch queryView(int viewId, Rect hostBounds){

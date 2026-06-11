@@ -188,11 +188,11 @@ public final class SeamView{
     }
 
     public float zWindowBase(){
-        return hostLayerZ();
+        return hostZ(Layer.min);
     }
 
     public float zWindowEnd(){
-        return hostLayerZ();
+        return hostZ(Layer.max);
     }
 
     public float hostZ(float internalZ){
@@ -222,6 +222,7 @@ public final class SeamView{
         ", zBase=" + zBase +
         ", zScale=" + zScale +
         ", hostLayerZ=" + hostLayerZ() +
+        ", zWindow=" + zWindowBase() + "->" + zWindowEnd() +
         '}';
     }
 }

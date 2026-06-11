@@ -16,9 +16,14 @@ public final class SeamWorldDrawSettings{
     public boolean drawDrawEntities = true;
 
     public boolean drawLights = false;
+    public boolean drawBloom = true;
+    public boolean drawAnimatedShields = true;
+    public boolean drawAnimatedBuildBeams = true;
 
     public boolean respectVanillaStatusToggle = true;
     public boolean updateVisibilityFlags = true;
+
+    public float screenShaderRange = 1f;
 
     public SeamWorldDrawSettings copy(){
         SeamWorldDrawSettings copy = new SeamWorldDrawSettings();
@@ -38,9 +43,14 @@ public final class SeamWorldDrawSettings{
         copy.drawDrawEntities = drawDrawEntities;
 
         copy.drawLights = drawLights;
+        copy.drawBloom = drawBloom;
+        copy.drawAnimatedShields = drawAnimatedShields;
+        copy.drawAnimatedBuildBeams = drawAnimatedBuildBeams;
 
         copy.respectVanillaStatusToggle = respectVanillaStatusToggle;
         copy.updateVisibilityFlags = updateVisibilityFlags;
+
+        copy.screenShaderRange = screenShaderRange;
 
         return copy;
     }
@@ -58,8 +68,12 @@ public final class SeamWorldDrawSettings{
         ", drawStatus=" + drawStatus +
         ", drawDrawEntities=" + drawDrawEntities +
         ", drawLights=" + drawLights +
+        ", drawBloom=" + drawBloom +
+        ", drawAnimatedShields=" + drawAnimatedShields +
+        ", drawAnimatedBuildBeams=" + drawAnimatedBuildBeams +
         ", respectVanillaStatusToggle=" + respectVanillaStatusToggle +
         ", updateVisibilityFlags=" + updateVisibilityFlags +
+        ", screenShaderRange=" + screenShaderRange +
         '}';
     }
 }

@@ -3,10 +3,13 @@ package seam;
 import arc.*;
 import arc.graphics.*;
 import arc.struct.*;
+import arc.util.*;
 import mindustry.*;
 import mindustry.core.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
+
+import java.lang.reflect.*;
 
 public final class SeamRuntimeStack{
     private final Seq<SeamRuntime> stack = new Seq<>();
@@ -44,7 +47,7 @@ public final class SeamRuntimeStack{
 
         runtime.requireWorldReady();
 
-        ContextSnapshot snapshot = new ContextSnapshot();
+        ContextSnapshot snapshot = new ContextSnapshot(runtime, phase);
 
         snapshots.add(snapshot);
         stack.add(runtime);
@@ -77,10 +80,15 @@ public final class SeamRuntimeStack{
             return;
         }
 
+        SeamRuntime runtime = stack.peek();
+        ContextSnapshot snapshot = snapshots.peek();
+
+        snapshot.wrapDelayedRuns(this, runtime);
+
         stack.pop();
         phases.pop();
+        snapshots.pop();
 
-        ContextSnapshot snapshot = snapshots.pop();
         snapshot.restore();
     }
 
@@ -91,7 +99,8 @@ public final class SeamRuntimeStack{
     }
 
     private static boolean usesRuntimeCamera(SeamPhase phase){
-        return phase == SeamPhase.updateGroups;
+        return phase == SeamPhase.updateGroups
+        || phase == SeamPhase.updateDelayed;
     }
 
     private static void applyRuntimeCamera(SeamRuntime runtime){
@@ -135,7 +144,10 @@ public final class SeamRuntimeStack{
         private final float cameraWidth;
         private final float cameraHeight;
 
-        ContextSnapshot(){
+        private final boolean captureDelayedRuns;
+        private final int delayedRunStart;
+
+        ContextSnapshot(SeamRuntime runtime, SeamPhase phase){
             this.world = Vars.world;
             this.state = Vars.state;
             this.collisions = Vars.collisions;
@@ -168,6 +180,17 @@ public final class SeamRuntimeStack{
                 this.cameraWidth = camera.width;
                 this.cameraHeight = camera.height;
             }
+
+            this.captureDelayedRuns = runtime != null && !runtime.main();
+            this.delayedRunStart = captureDelayedRuns ? DelayedRunBridge.size() : -1;
+        }
+
+        void wrapDelayedRuns(SeamRuntimeStack owner, SeamRuntime runtime){
+            if(!captureDelayedRuns || delayedRunStart < 0 || runtime == null || runtime.main()){
+                return;
+            }
+
+            DelayedRunBridge.wrapNew(owner, runtime, delayedRunStart);
         }
 
         void restore(){
@@ -195,6 +218,156 @@ public final class SeamRuntimeStack{
                 Core.camera.height = cameraHeight;
                 Core.camera.update();
             }
+        }
+    }
+
+    private static final class RuntimeDelayedRunnable implements Runnable{
+        private final SeamRuntimeStack owner;
+        private final SeamRuntime runtime;
+        private final Runnable delegate;
+
+        RuntimeDelayedRunnable(SeamRuntimeStack owner, SeamRuntime runtime, Runnable delegate){
+            if(owner == null){
+                throw new NullPointerException("owner");
+            }
+
+            if(runtime == null){
+                throw new NullPointerException("runtime");
+            }
+
+            if(delegate == null){
+                throw new NullPointerException("delegate");
+            }
+
+            this.owner = owner;
+            this.runtime = runtime;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void run(){
+            if(runtime.disposed() || !runtime.loaded() || !runtime.worldReady()){
+                return;
+            }
+
+            if(owner.active()){
+                if(owner.current() != runtime){
+                    throw new IllegalStateException(
+                    "Cannot execute delayed Seam runtime task for runtime " + runtime.id +
+                    " while runtime " + owner.current().id + " is active."
+                    );
+                }
+
+                delegate.run();
+                return;
+            }
+
+            owner.enter(runtime, SeamPhase.updateDelayed);
+
+            try{
+                delegate.run();
+            }finally{
+                owner.exit();
+            }
+        }
+    }
+
+    private static final class DelayedRunBridge{
+        private static Field runsField;
+        private static Field finishField;
+
+        private static boolean reflectionReady;
+        private static boolean reflectionFailed;
+        private static boolean loggedFailure;
+
+        static int size(){
+            Seq<?> runs = runs();
+
+            return runs == null ? -1 : runs.size;
+        }
+
+        static void wrapNew(SeamRuntimeStack owner, SeamRuntime runtime, int start){
+            Seq<?> runs = runs();
+
+            if(runs == null || start < 0){
+                return;
+            }
+
+            int from = Math.min(start, runs.size);
+
+            for(int i = from; i < runs.size; i++){
+                Object delayed = runs.items[i];
+
+                if(delayed == null){
+                    continue;
+                }
+
+                try{
+                    Object existing = finishField.get(delayed);
+
+                    if(existing == null || existing instanceof RuntimeDelayedRunnable){
+                        continue;
+                    }
+
+                    if(!(existing instanceof Runnable runnable)){
+                        continue;
+                    }
+
+                    finishField.set(delayed, new RuntimeDelayedRunnable(owner, runtime, runnable));
+                }catch(Throwable throwable){
+                    logFailure(throwable);
+                    return;
+                }
+            }
+        }
+
+        private static Seq<?> runs(){
+            if(!ensureReflection()){
+                return null;
+            }
+
+            try{
+                return (Seq<?>)runsField.get(null);
+            }catch(Throwable throwable){
+                logFailure(throwable);
+                return null;
+            }
+        }
+
+        private static boolean ensureReflection(){
+            if(reflectionReady){
+                return true;
+            }
+
+            if(reflectionFailed){
+                return false;
+            }
+
+            try{
+                runsField = Time.class.getDeclaredField("runs");
+                runsField.setAccessible(true);
+
+                finishField = Time.DelayRun.class.getDeclaredField("finish");
+                finishField.setAccessible(true);
+
+                reflectionReady = true;
+                return true;
+            }catch(Throwable throwable){
+                reflectionFailed = true;
+                logFailure(throwable);
+                return false;
+            }
+        }
+
+        private static void logFailure(Throwable throwable){
+            if(loggedFailure){
+                return;
+            }
+
+            loggedFailure = true;
+
+            Log.err("[Seam] Failed to bind Arc Time.run delayed task to Seam runtime context. Delayed vanilla turret shots may leak into the main runtime.");
+            Log.err(throwable);
         }
     }
 }

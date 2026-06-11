@@ -12,6 +12,7 @@ public enum SeamPhase{
     updateGroups,
     updateBuildings,
     updatePower,
+    updateDelayed,
     updatePost,
 
     buildPlace,

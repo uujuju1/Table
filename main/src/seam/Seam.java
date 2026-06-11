@@ -4,6 +4,7 @@ import arc.*;
 import arc.util.*;
 import mindustry.game.EventType.*;
 import mindustry.mod.*;
+import mindustry.world.*;
 
 public class Seam extends Mod{
     public static final SeamRuntimeStack stack = new SeamRuntimeStack();
@@ -42,7 +43,10 @@ public class Seam extends Mod{
             refreshMainRuntime();
         });
 
-        Events.run(Trigger.update, engine::update);
+        Events.on(BlockDestroyEvent.class, event -> markActiveRuntimeTileDirty(event.tile));
+        Events.on(TileChangeEvent.class, event -> markActiveRuntimeTileDirty(event.tile));
+
+        Events.run(Trigger.afterGameUpdate, engine::update);
         Events.run(Trigger.draw, worldDraw::draw);
 
         Log.info("[Seam] Core initialized successfully.");
@@ -51,5 +55,40 @@ public class Seam extends Mod{
     public static void refreshMainRuntime(){
         runtimes.refreshMain();
         mainRuntime = runtimes.main();
+    }
+
+    private static void markActiveRuntimeTileDirty(Tile tile){
+        if(tile == null || !stack.active()){
+            return;
+        }
+
+        SeamRuntime runtime = stack.current();
+
+        if(runtime == null || runtime.main() || runtime.disposed() || !runtime.worldReady()){
+            return;
+        }
+
+        if(tile.x < 0 || tile.y < 0 || tile.x >= runtime.world.width() || tile.y >= runtime.world.height()){
+            return;
+        }
+
+        if(runtime.world.tile(tile.x, tile.y) != tile){
+            return;
+        }
+
+        Block block = tile.block();
+        int radius = Math.max(3, (block == null ? 1 : block.size) + 3);
+
+        runtime.renderInvalidation.markAround(
+        runtime,
+        tile.x,
+        tile.y,
+        radius,
+        SeamRenderInvalidationType.tile,
+        SeamRenderInvalidationType.block,
+        SeamRenderInvalidationType.light,
+        SeamRenderInvalidationType.shadow,
+        SeamRenderInvalidationType.proximity
+        );
     }
 }
