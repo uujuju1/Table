@@ -1,11 +1,11 @@
 package seam.graphics.cache;
 
+import seam.graphics.*;
 import seam.graphics.draw.*;
 import seam.graphics.invalidation.*;
 import seam.graphics.view.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.world.*;
 import arc.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
@@ -15,8 +15,6 @@ import arc.math.geom.*;
 import arc.struct.*;
 import arc.struct.IntSet.*;
 import arc.util.*;
-import mindustry.*;
-import mindustry.content.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;

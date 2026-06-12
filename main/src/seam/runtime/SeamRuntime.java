@@ -1,13 +1,15 @@
 package seam.runtime;
 
-import seam.core.*;
-import seam.entities.*;
-import seam.runtime.mutations.*;
-import seam.graphics.invalidation.*;
-import seam.runtime.update.*;
 import mindustry.*;
 import mindustry.core.*;
 import mindustry.entities.*;
+import seam.core.*;
+import seam.entities.*;
+import seam.graphics.invalidation.*;
+import seam.runtime.control.*;
+import seam.runtime.mutations.*;
+import seam.runtime.update.*;
+import seam.world.*;
 
 public final class SeamRuntime{
     public enum Kind{
@@ -51,7 +53,7 @@ public final class SeamRuntime{
         this.kind = config.kind;
         this.updatePolicy = config.updatePolicy;
 
-        this.world = new World();
+        this.world = new SeamWorld();
         this.state = new GameState();
         this.groups = new SeamGroupSet(config.width, config.height);
         this.collisions = new EntityCollisions();
@@ -152,7 +154,7 @@ public final class SeamRuntime{
     }
 
     public boolean worldReady(){
-        return SeamLifecycle.worldReady(world);
+        return SeamRuntimeValidator.worldReady(world);
     }
 
     public SeamRuntimeUpdatePolicy updatePolicy(){

@@ -1,6 +1,6 @@
 package seam.graphics.view;
 
-import seam.world.*;
+import seam.graphics.*;
 import arc.struct.*;
 
 public final class SeamViewRegistry{

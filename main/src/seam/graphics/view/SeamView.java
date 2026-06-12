@@ -1,7 +1,7 @@
 package seam.graphics.view;
 
+import seam.graphics.*;
 import seam.runtime.*;
-import seam.world.*;
 import arc.math.geom.*;
 import mindustry.graphics.*;
 

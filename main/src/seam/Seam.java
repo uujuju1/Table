@@ -1,5 +1,7 @@
 package seam;
 
+import arc.util.*;
+import mindustry.mod.*;
 import seam.core.*;
 import seam.graphics.*;
 import seam.graphics.draw.*;
@@ -7,12 +9,10 @@ import seam.graphics.pick.*;
 import seam.graphics.view.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.world.*;
 import seam.world.config.*;
 import seam.world.construction.*;
 import seam.world.terrain.*;
-import arc.util.*;
-import mindustry.mod.*;
+import seam.world.tiles.*;
 
 public class Seam extends Mod{
     private static final SeamServices services = new SeamServices();

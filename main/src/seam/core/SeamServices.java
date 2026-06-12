@@ -1,5 +1,8 @@
 package seam.core;
 
+import arc.*;
+import mindustry.game.EventType.*;
+import mindustry.world.*;
 import seam.graphics.*;
 import seam.graphics.draw.*;
 import seam.graphics.invalidation.*;
@@ -7,13 +10,10 @@ import seam.graphics.pick.*;
 import seam.graphics.view.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.world.*;
 import seam.world.config.*;
 import seam.world.construction.*;
 import seam.world.terrain.*;
-import arc.*;
-import mindustry.game.EventType.*;
-import mindustry.world.*;
+import seam.world.tiles.*;
 
 public final class SeamServices{
     public final SeamRuntimeStack stack = new SeamRuntimeStack();

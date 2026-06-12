@@ -1,9 +1,8 @@
-package seam.world;
+package seam.world.tiles;
 
 import seam.core.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.world.tiles.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;

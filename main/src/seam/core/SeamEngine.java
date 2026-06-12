@@ -83,7 +83,7 @@ public final class SeamEngine{
             return report;
         }
 
-        if(!SeamLifecycle.mainWorldReady()){
+        if(!SeamRuntimeValidator.mainWorldReady()){
             SeamStepReport report = new SeamStepReport();
             report.skip("main world is not ready");
             lastReport = report;
@@ -109,7 +109,7 @@ public final class SeamEngine{
             return report;
         }
 
-        if(!SeamLifecycle.mainWorldReady()){
+        if(!SeamRuntimeValidator.mainWorldReady()){
             IllegalStateException exception = new IllegalStateException("Cannot step SeamEngine: main world is not ready.");
             report.fail(exception);
             throw exception;

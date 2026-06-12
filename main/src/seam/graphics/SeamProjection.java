@@ -1,4 +1,4 @@
-package seam.world;
+package seam.graphics;
 
 import seam.runtime.*;
 import seam.world.tiles.*;
