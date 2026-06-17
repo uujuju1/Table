@@ -6,6 +6,7 @@ import arc.struct.*;
 public final class SeamRuntimeRegistry{
     private final IntMap<SeamRuntime> byId = new IntMap<>();
     private final Seq<SeamRuntime> runtimes = new Seq<>();
+    public static int curId;
 
     private SeamRuntime main;
 
@@ -23,6 +24,11 @@ public final class SeamRuntimeRegistry{
 
     public boolean contains(int id){
         return byId.containsKey(id);
+    }
+
+    public static int nextId() {
+        curId++;
+        return curId;
     }
 
     public void refreshMain(){

@@ -8,6 +8,7 @@ import seam.graphics.draw.*;
 import seam.graphics.invalidation.*;
 import seam.graphics.pick.*;
 import seam.graphics.view.*;
+import seam.ponder.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
 import seam.world.config.*;
@@ -29,6 +30,8 @@ public final class SeamServices{
     public final SeamRenderService rendering = new SeamRenderService(runtimes, views);
     public final SeamDrawScope drawScope = new SeamDrawScope(stack);
     public final SeamWorldDraw worldDraw = new SeamWorldDraw(runtimes, views, rendering, drawScope);
+
+    public final SeamRenderer renderer = new SeamRenderer();
 
     private SeamRuntime mainRuntime;
     private boolean eventsInstalled;
