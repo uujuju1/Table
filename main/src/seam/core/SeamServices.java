@@ -13,15 +13,6 @@ public final class SeamServices{
     public final SeamRuntimeRegistry runtimes = new SeamRuntimeRegistry();
     public final SeamRuntimeExecutor executor = new SeamRuntimeExecutor(runtimes, stack);
     public final SeamEngine engine = new SeamEngine(runtimes, stack, executor);
-//    public final SeamConfigService config = new SeamConfigService(runtimes, executor);
-//    public final SeamBuildService builds = new SeamBuildService(runtimes, executor);
-//    public final SeamTerrainService terrain = new SeamTerrainService(runtimes, executor);
-//    public final SeamQueryService query = new SeamQueryService(runtimes, executor);
-//    public final SeamViewRegistry views = new SeamViewRegistry();
-//    public final SeamPickService picks = new SeamPickService(runtimes, views, query);
-//    public final SeamRenderService rendering = new SeamRenderService(runtimes, views);
-//    public final SeamDrawScope drawScope = new SeamDrawScope(stack);
-//    public final SeamWorldDraw worldDraw = new SeamWorldDraw(runtimes, views, rendering, drawScope);
 
     public final SeamRenderer renderer = new SeamRenderer();
 
@@ -59,13 +50,9 @@ public final class SeamServices{
         Events.on(TileChangeEvent.class, event -> markActiveRuntimeTileDirty(event.tile));
 
         Events.run(Trigger.afterGameUpdate, engine::update);
-//        Events.run(Trigger.draw, worldDraw::draw);
     }
 
     public void clearForReset(){
-//        worldDraw.clear();
-//        rendering.clear();
-//        views.clear();
         runtimes.clearSubworlds();
     }
 

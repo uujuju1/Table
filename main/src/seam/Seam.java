@@ -8,20 +8,6 @@ import seam.runtime.*;
 public class Seam extends Mod{
     public static final SeamServices services = new SeamServices();
 
-//    public static final SeamRuntimeStack stack = services.stack;
-//    public static final SeamRuntimeRegistry runtimes = services.runtimes;
-//    public static final SeamRuntimeExecutor executor = services.executor;
-//    public static final SeamEngine engine = services.engine;
-//    public static final SeamConfigService config = services.config;
-//    public static final SeamBuildService builds = services.builds;
-//    public static final SeamTerrainService terrain = services.terrain;
-//    public static final SeamQueryService query = services.query;
-//    public static final SeamViewRegistry views = services.views;
-//    public static final SeamPickService picks = services.picks;
-//    public static final SeamRenderService rendering = services.rendering;
-//    public static final SeamDrawScope drawScope = services.drawScope;
-//    public static final SeamWorldDraw worldDraw = services.worldDraw;
-
     public static SeamRuntime mainRuntime;
 
     public Seam(){

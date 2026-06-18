@@ -18,8 +18,6 @@ public final class SeamEngine {
 	private boolean validateAfterStep = true;
 	private boolean respectMainPause = true;
 
-	private SeamStepReport lastReport;
-
 	public SeamEngine(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack, SeamRuntimeExecutor executor) {
 		if (runtimes == null) {
 			throw new NullPointerException("runtimes");
@@ -70,57 +68,20 @@ public final class SeamEngine {
 		this.respectMainPause = respectMainPause;
 	}
 
-//    public SeamStepReport lastReport(){
-//        return lastReport;
-//    }
-
 	public void update() {
-		if (!automatic) {
-//            SeamStepReport report = new SeamStepReport();
-//            report.skip("automatic updates are disabled");
-//            lastReport = report;
-			return;
-		}
-
-		if (!SeamRuntimeValidator.mainWorldReady()) {
-//            SeamStepReport report = new SeamStepReport();
-//            report.skip("main world is not ready");
-//            lastReport = report;
-			return;
-		}
-
-		if (respectMainPause && Vars.state != null && Vars.state.isPaused()) {
-//            SeamStepReport report = new SeamStepReport();
-//            report.skip("main game is paused");
-//            lastReport = report;
-			return;
-		}
+		if (!automatic) return;
+		if (!SeamRuntimeValidator.mainWorldReady()) return;
+		if (respectMainPause && Vars.state != null && Vars.state.isPaused()) return;
 
 		step();
 	}
 
 	public void step() {
-//        SeamStepReport report = new SeamStepReport();
-//        lastReport = report;
+		if (!enabled) return;
 
-		if (!enabled) {
-//            report.skip("engine is disabled");
-			return;
-		}
+		if (!SeamRuntimeValidator.mainWorldReady()) throw new IllegalStateException("Cannot step SeamEngine: main world is not ready.");
+		if (stack.active()) throw new IllegalStateException("Cannot step SeamEngine while a runtime context is already active.");
 
-		if (!SeamRuntimeValidator.mainWorldReady()) {
-//            IllegalStateException exception = new IllegalStateException("Cannot step SeamEngine: main world is not ready.");
-//            report.fail(exception);
-			throw new IllegalStateException("Cannot step SeamEngine: main world is not ready.");
-		}
-
-		if (stack.active()) {
-//            IllegalStateException exception = new IllegalStateException("Cannot step SeamEngine while a runtime context is already active.");
-//            report.fail(exception);
-			throw new IllegalStateException("Cannot step SeamEngine while a runtime context is already active.");
-		}
-
-//        try{
 		Seq<SeamRuntime> copy = runtimes.all();
 
 		for (SeamRuntime runtime : copy) {
@@ -129,19 +90,11 @@ public final class SeamEngine {
 			}
 
 			updateRuntime(runtime);
-//                report.add(runtimeReport);
 		}
 
 		if (validateAfterStep) {
 			SeamRuntimeValidator.validateRestoredToMain(runtimes, stack);
 		}
-
-//            report.finish();
-//            return report;
-//        }catch(Throwable throwable){
-//            report.fail(throwable);
-//            throw throwable;
-//        }
 	}
 
 	public void step(int amount) {
@@ -172,12 +125,8 @@ public final class SeamEngine {
 			SeamRuntimeValidator.validateRuntime(runtime, false);
 		}
 
-//        SeamRuntimeStepReport report = new SeamRuntimeStepReport(runtime);
-//        report.begin(runtime);
-
 		SeamRuntimeUpdatePolicy policy = runtime.updatePolicy();
 
-//        try{
 		run(runtime, SeamPhase.updatePre, active -> {
 			active.clock.advance(Time.delta);
 			active.state.tick += active.clock.delta();
@@ -188,7 +137,6 @@ public final class SeamEngine {
 		if (policy.mutations) {
 			run(runtime, SeamPhase.updateMutations, active -> {
 				active.mutations.drain(active);
-//                    report.recordMutations(results);
 				return null;
 			});
 		}
@@ -216,11 +164,6 @@ public final class SeamEngine {
 
 			return null;
 		});
-
-//            return report;
-//        }finally{
-//            report.end(runtime);
-//        }
 	}
 
 	private void updateLightweightBuildingRuntime(SeamRuntime runtime, SeamRuntimeUpdatePolicy policy) {

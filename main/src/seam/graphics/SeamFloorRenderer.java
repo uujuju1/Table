@@ -6,13 +6,15 @@ import arc.graphics.g2d.*;
 import arc.graphics.gl.*;
 import arc.math.*;
 import arc.struct.*;
+import arc.util.*;
 import mindustry.*;
 import mindustry.content.*;
+import mindustry.game.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.blocks.environment.*;
 
-public class SeamFloorRenderer {
+public class SeamFloorRenderer implements Disposable {
 	public FetchBatch reference;
 
 	private final FloorBatch rendererBatch = new FloorBatch();
@@ -54,27 +56,7 @@ public class SeamFloorRenderer {
         }
 			"""
 		);
-	}
-
-	public void drawFloor() {
-		if (layers != null) {
-			shader.bind();
-			shader.setUniformMatrix4(
-				"u_proj",
-				projection.set(Core.camera.mat)
-			);
-			shader.setUniformMatrix4(
-				"u_trans",
-				projection.idt().translate(reference.x, reference.y).rotate(reference.rotation).scale(reference.scaleX, reference.scaleY)
-			);
-			Core.atlas.find("grass1").texture.bind(0);
-			Gl.enable(Gl.blend);
-			for (Mesh mesh : layers) {
-				if (mesh != null) {
-					mesh.render(shader, Gl.triangles, 0, mesh.getMaxVertices() / 5);
-				}
-			}
-		}
+		Events.on(EventType.DisposeEvent.class, e -> dispose());
 	}
 
 	public void buildLayer(CacheLayer layer, Seq<Tile> tiles) {
@@ -116,6 +98,47 @@ public class SeamFloorRenderer {
 		});
 
 		layers.each(this::buildLayer);
+	}
+
+	@Override
+	public void dispose() {
+		if (layers != null) {
+			for (Mesh mesh : layers) {
+				if (mesh != null) mesh.dispose();
+			}
+		}
+	}
+
+	public void drawFloor() {
+		if (layers != null) {
+			shader.bind();
+			shader.setUniformMatrix4(
+				"u_proj",
+				projection.set(Core.camera.mat)
+			);
+			shader.setUniformMatrix4(
+				"u_trans",
+				projection.idt().translate(reference.x, reference.y).rotate(reference.rotation).scale(reference.scaleX, reference.scaleY)
+			);
+			Core.atlas.find("grass1").texture.bind(0);
+			Gl.enable(Gl.blend);
+			for (Mesh mesh : layers) {
+				if (mesh != null) {
+					mesh.render(shader, Gl.triangles, 0, mesh.getMaxVertices() / 5);
+				}
+			}
+		}
+	}
+
+	// do not even try to dispose this, cause this class can be un-disposed
+	@Override
+	public boolean isDisposed() {
+		if (layers != null) {
+			for (Mesh mesh : layers) {
+				if (mesh != null && mesh.isDisposed()) return true;
+			}
+		}
+		return false;
 	}
 
 	public void reload() {

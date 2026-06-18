@@ -1,13 +1,10 @@
 package seam.ponder;
 
 import arc.*;
-import arc.graphics.*;
 import arc.graphics.g2d.*;
 import mindustry.*;
-import mindustry.content.*;
 import mindustry.core.*;
 import mindustry.game.*;
-import mindustry.gen.*;
 import mindustry.graphics.*;
 import seam.graphics.*;
 import seam.runtime.*;
@@ -44,15 +41,6 @@ public class SeamRenderer {
 		Core.camera.update();
 
 		// TODO floors
-//		runtime.world.tiles.eachTile(tile -> {
-//			if (tile.floor() == Blocks.air) {
-//				Draw.color((tile.x % 2 == 0 ^ tile.y % 2 == 0) ? Color.white : Color.gray);
-//				Fill.square(tile.drawx(), tile.drawy(), Vars.tilesize / 2f);
-//			} else {
-//				Draw.color();
-//				tile.floor().drawBase(tile);
-//			}
-//		});
 		Draw.draw(Layer.floor, () -> floorRenderer.drawFloor());
 		// TODO darkness
 		// TODO overlay
