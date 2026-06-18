@@ -19,13 +19,15 @@ public final class SeamServices{
     private SeamRuntime mainRuntime;
     private boolean eventsInstalled;
 
-    public SeamRuntime mainRuntime(){
-        return mainRuntime;
+    public void clearForReset(){
+        runtimes.clearSubworlds();
     }
 
-    public void refreshMainRuntime(){
-        runtimes.refreshMain();
-        mainRuntime = runtimes.main();
+    public void init(Runnable refresh) {
+        SeamBootstrapValidator.validate();
+
+        refreshMainRuntime();
+        installEvents(refresh);
     }
 
     public void installEvents(Runnable refreshMainRuntime){
@@ -52,8 +54,8 @@ public final class SeamServices{
         Events.run(Trigger.afterGameUpdate, engine::update);
     }
 
-    public void clearForReset(){
-        runtimes.clearSubworlds();
+    public SeamRuntime mainRuntime(){
+        return mainRuntime;
     }
 
     private void markActiveRuntimeTileDirty(Tile tile){
@@ -79,15 +81,20 @@ public final class SeamServices{
         int radius = Math.max(3, (block == null ? 1 : block.size) + 3);
 
         runtime.renderInvalidation.markAround(
-        runtime,
-        tile.x,
-        tile.y,
-        radius,
-        SeamRenderInvalidationType.tile,
-        SeamRenderInvalidationType.block,
-        SeamRenderInvalidationType.light,
-        SeamRenderInvalidationType.shadow,
-        SeamRenderInvalidationType.proximity
+          runtime,
+          tile.x,
+          tile.y,
+          radius,
+          SeamRenderInvalidationType.tile,
+          SeamRenderInvalidationType.block,
+          SeamRenderInvalidationType.light,
+          SeamRenderInvalidationType.shadow,
+          SeamRenderInvalidationType.proximity
         );
+    }
+
+    public void refreshMainRuntime(){
+        runtimes.refreshMain();
+        mainRuntime = runtimes.main();
     }
 }

@@ -16,10 +16,7 @@ public class Seam extends Mod{
 
     @Override
     public void init(){
-        SeamBootstrapValidator.validate();
-
-        refreshMainRuntime();
-        services.installEvents(Seam::refreshMainRuntime);
+        services.init(Seam::refreshMainRuntime);
 
         Log.info("[Seam] Core initialized successfully.");
     }

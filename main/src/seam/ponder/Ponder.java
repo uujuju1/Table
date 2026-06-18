@@ -1,13 +1,13 @@
 package seam.ponder;
 
-import mindustry.*;
 import mindustry.content.*;
-import mindustry.core.*;
 import seam.*;
+import seam.core.*;
 import seam.runtime.*;
 import seam.runtime.update.*;
 
 public class Ponder {
+
 	public static SeamRuntime buildEmpty(String name) {
 		SeamRuntime res = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder().id(SeamRuntimeRegistry.nextId())
@@ -17,20 +17,12 @@ public class Ponder {
 			.build()
 		);
 
-		World old = Vars.world;
-		Vars.world = res.world;
-
-		res.world.setGenerating(true);
-
-		res.world.tiles.eachTile(t -> t.setFloor(Blocks.metalFloor.asFloor()));
-
-		res.world.setGenerating(false);
-
-		Vars.world = old;
-
-//		SeamTileMutator.fillFloor(res, Blocks.grass.asFloor());
-//		SeamTileMutator.place(res, 5, 5, Blocks.conveyor, Team.sharded, 0);
-//		Seam.builds.place(res, 5, 5, Blocks.conveyor, Team.sharded, 0);
+		Seam.services.executor.call(res, SeamPhase.manual, runtime -> {
+			runtime.world.setGenerating(true);
+			runtime.world.tiles.eachTile(tile -> tile.setFloor(Blocks.metalFloor.asFloor()));
+			runtime.world.setGenerating(false);
+			return null;
+		});
 
 		return res;
 	}

@@ -19,17 +19,9 @@ public final class SeamEngine {
 	private boolean respectMainPause = true;
 
 	public SeamEngine(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack, SeamRuntimeExecutor executor) {
-		if (runtimes == null) {
-			throw new NullPointerException("runtimes");
-		}
-
-		if (stack == null) {
-			throw new NullPointerException("stack");
-		}
-
-		if (executor == null) {
-			throw new NullPointerException("executor");
-		}
+		if (runtimes == null) throw new NullPointerException("runtimes");
+		if (stack == null) throw new NullPointerException("stack");
+		if (executor == null) throw new NullPointerException("executor");
 
 		this.runtimes = runtimes;
 		this.stack = stack;
@@ -85,9 +77,7 @@ public final class SeamEngine {
 		Seq<SeamRuntime> copy = runtimes.all();
 
 		for (SeamRuntime runtime : copy) {
-			if (!runtime.updateEnabled()) {
-				continue;
-			}
+			if (!runtime.updateEnabled()) continue;
 
 			updateRuntime(runtime);
 		}
@@ -98,24 +88,9 @@ public final class SeamEngine {
 	}
 
 	public void step(int amount) {
-		if (amount < 0) {
-			throw new IllegalArgumentException("Step amount cannot be negative.");
-		}
+		if (amount < 0) throw new IllegalArgumentException("Step amount cannot be negative.");
 
-//        SeamStepReport report = null;
-
-		for (int i = 0; i < amount; i++) {
-//            report = step();
-			step();
-		}
-
-//        if(report == null){
-//            report = new SeamStepReport();
-//            report.skip("zero steps requested");
-//            lastReport = report;
-//        }
-//
-//        return report;
+		for (int i = 0; i < amount; i++) step();
 	}
 
 	private void updateRuntime(SeamRuntime runtime) {
@@ -196,25 +171,11 @@ public final class SeamEngine {
 	private void run(
 		SeamRuntime runtime,
 		SeamPhase phase,
-//    SeamRuntimeStepReport runtimeReport,
 		SeamRuntimeExecutor.Call<Void> action
 	) {
-//        SeamPhaseReport phaseReport = new SeamPhaseReport(phase);
-//        runtimeReport.add(phaseReport);
-//
-//        phaseReport.begin();
-
-//        try{
 		executor.call(runtime, phase, active -> {
 			action.run(active);
 			return null;
 		});
-//        }catch(Throwable throwable){
-//            phaseReport.fail(throwable);
-//            Log.err("Seam runtime update failed. Runtime: @, phase: @", runtime, phase);
-//            throw throwable;
-//        }finally{
-//            phaseReport.end();
-//        }
 	}
 }
