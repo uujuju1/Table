@@ -1,18 +1,12 @@
 package seam.ponder;
 
-import mindustry.*;
-import mindustry.content.*;
-import mindustry.core.*;
-import mindustry.game.*;
 import seam.*;
 import seam.runtime.*;
 import seam.runtime.update.*;
-import seam.world.construction.*;
-import seam.world.tiles.*;
 
 public class Ponder {
 	public static SeamRuntime buildEmpty(String name) {
-		SeamRuntime res = Seam.runtimes.create(
+		SeamRuntime res = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder().id(SeamRuntimeRegistry.nextId())
 			.name(name)
 			.size(5, 5)

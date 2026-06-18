@@ -4,7 +4,6 @@ import arc.*;
 import mindustry.game.EventType.*;
 import mindustry.world.*;
 import seam.graphics.*;
-import seam.graphics.draw.*;
 import seam.graphics.invalidation.*;
 import seam.graphics.pick.*;
 import seam.graphics.view.*;
@@ -28,8 +27,8 @@ public final class SeamServices{
     public final SeamViewRegistry views = new SeamViewRegistry();
     public final SeamPickService picks = new SeamPickService(runtimes, views, query);
     public final SeamRenderService rendering = new SeamRenderService(runtimes, views);
-    public final SeamDrawScope drawScope = new SeamDrawScope(stack);
-    public final SeamWorldDraw worldDraw = new SeamWorldDraw(runtimes, views, rendering, drawScope);
+//    public final SeamDrawScope drawScope = new SeamDrawScope(stack);
+//    public final SeamWorldDraw worldDraw = new SeamWorldDraw(runtimes, views, rendering, drawScope);
 
     public final SeamRenderer renderer = new SeamRenderer();
 
@@ -67,11 +66,11 @@ public final class SeamServices{
         Events.on(TileChangeEvent.class, event -> markActiveRuntimeTileDirty(event.tile));
 
         Events.run(Trigger.afterGameUpdate, engine::update);
-        Events.run(Trigger.draw, worldDraw::draw);
+//        Events.run(Trigger.draw, worldDraw::draw);
     }
 
     public void clearForReset(){
-        worldDraw.clear();
+//        worldDraw.clear();
         rendering.clear();
         views.clear();
         runtimes.clearSubworlds();
