@@ -3,30 +3,23 @@ package seam.core;
 import arc.*;
 import mindustry.game.EventType.*;
 import mindustry.world.*;
-import seam.graphics.*;
 import seam.graphics.invalidation.*;
-import seam.graphics.pick.*;
-import seam.graphics.view.*;
 import seam.ponder.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.world.config.*;
-import seam.world.construction.*;
-import seam.world.terrain.*;
-import seam.world.tiles.*;
 
 public final class SeamServices{
     public final SeamRuntimeStack stack = new SeamRuntimeStack();
     public final SeamRuntimeRegistry runtimes = new SeamRuntimeRegistry();
     public final SeamRuntimeExecutor executor = new SeamRuntimeExecutor(runtimes, stack);
     public final SeamEngine engine = new SeamEngine(runtimes, stack, executor);
-    public final SeamConfigService config = new SeamConfigService(runtimes, executor);
-    public final SeamBuildService builds = new SeamBuildService(runtimes, executor);
-    public final SeamTerrainService terrain = new SeamTerrainService(runtimes, executor);
-    public final SeamQueryService query = new SeamQueryService(runtimes, executor);
-    public final SeamViewRegistry views = new SeamViewRegistry();
-    public final SeamPickService picks = new SeamPickService(runtimes, views, query);
-    public final SeamRenderService rendering = new SeamRenderService(runtimes, views);
+//    public final SeamConfigService config = new SeamConfigService(runtimes, executor);
+//    public final SeamBuildService builds = new SeamBuildService(runtimes, executor);
+//    public final SeamTerrainService terrain = new SeamTerrainService(runtimes, executor);
+//    public final SeamQueryService query = new SeamQueryService(runtimes, executor);
+//    public final SeamViewRegistry views = new SeamViewRegistry();
+//    public final SeamPickService picks = new SeamPickService(runtimes, views, query);
+//    public final SeamRenderService rendering = new SeamRenderService(runtimes, views);
 //    public final SeamDrawScope drawScope = new SeamDrawScope(stack);
 //    public final SeamWorldDraw worldDraw = new SeamWorldDraw(runtimes, views, rendering, drawScope);
 
@@ -71,8 +64,8 @@ public final class SeamServices{
 
     public void clearForReset(){
 //        worldDraw.clear();
-        rendering.clear();
-        views.clear();
+//        rendering.clear();
+//        views.clear();
         runtimes.clearSubworlds();
     }
 
