@@ -3,7 +3,6 @@ package seam.runtime.update;
 public final class SeamRuntimeUpdatePolicy{
     public final boolean enabled;
 
-    public final boolean mutations;
     public final boolean teams;
     public final boolean buildings;
     public final boolean power;
@@ -17,20 +16,19 @@ public final class SeamRuntimeUpdatePolicy{
     public final boolean collisions;
 
     private SeamRuntimeUpdatePolicy(Builder builder){
-        this.enabled = builder.enabled;
+        enabled = builder.enabled;
 
-        this.mutations = builder.mutations;
-        this.teams = builder.teams;
-        this.buildings = builder.buildings;
-        this.power = builder.power;
-        this.puddles = builder.puddles;
-        this.fires = builder.fires;
-        this.weather = builder.weather;
-        this.bullets = builder.bullets;
-        this.units = builder.units;
-        this.sync = builder.sync;
-        this.draw = builder.draw;
-        this.collisions = builder.collisions;
+        teams = builder.teams;
+        buildings = builder.buildings;
+        power = builder.power;
+        puddles = builder.puddles;
+        fires = builder.fires;
+        weather = builder.weather;
+        bullets = builder.bullets;
+        units = builder.units;
+        sync = builder.sync;
+        draw = builder.draw;
+        collisions = builder.collisions;
     }
 
     public static Builder builder(){
@@ -52,7 +50,6 @@ public final class SeamRuntimeUpdatePolicy{
     public static SeamRuntimeUpdatePolicy buildingsOnly(){
         return builder()
         .enabled(true)
-        .mutations(true)
         .teams(true)
         .buildings(true)
         .power(true)
@@ -62,7 +59,6 @@ public final class SeamRuntimeUpdatePolicy{
     public static SeamRuntimeUpdatePolicy all(){
         return builder()
         .enabled(true)
-        .mutations(true)
         .teams(true)
         .buildings(true)
         .power(true)
@@ -77,12 +73,9 @@ public final class SeamRuntimeUpdatePolicy{
         .build();
     }
 
+    // TODO probably unnecessary to have a getter method if the value is public?
     public boolean enabled(){
         return enabled;
-    }
-
-    public boolean mutations(){
-        return mutations;
     }
 
     public boolean teams(){
@@ -127,10 +120,6 @@ public final class SeamRuntimeUpdatePolicy{
 
     public boolean collisions(){
         return collisions;
-    }
-
-    public boolean updateMutations(){
-        return enabled && mutations;
     }
 
     public boolean updateTeams(){
@@ -186,7 +175,6 @@ public final class SeamRuntimeUpdatePolicy{
     public Builder toBuilder(){
         return builder()
         .enabled(enabled)
-        .mutations(mutations)
         .teams(teams)
         .buildings(buildings)
         .power(power)
@@ -204,7 +192,6 @@ public final class SeamRuntimeUpdatePolicy{
     public String toString(){
         return "SeamRuntimeUpdatePolicy{" +
         "enabled=" + enabled +
-        ", mutations=" + mutations +
         ", teams=" + teams +
         ", buildings=" + buildings +
         ", power=" + power +
@@ -222,7 +209,6 @@ public final class SeamRuntimeUpdatePolicy{
     public static final class Builder{
         private boolean enabled = true;
 
-        private boolean mutations;
         private boolean teams;
         private boolean buildings;
         private boolean power;
@@ -240,11 +226,6 @@ public final class SeamRuntimeUpdatePolicy{
 
         public Builder enabled(boolean enabled){
             this.enabled = enabled;
-            return this;
-        }
-
-        public Builder mutations(boolean mutations){
-            this.mutations = mutations;
             return this;
         }
 
