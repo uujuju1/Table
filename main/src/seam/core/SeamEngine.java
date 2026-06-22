@@ -109,13 +109,6 @@ public final class SeamEngine {
 			return null;
 		});
 
-		if (policy.mutations) {
-			run(runtime, SeamPhase.updateMutations, active -> {
-				active.mutations.drain(active);
-				return null;
-			});
-		}
-
 		if (policy.teams) {
 			run(runtime, SeamPhase.updateTeams, active -> {
 				active.state.teams.updateTeamStats();

@@ -5,9 +5,7 @@ import mindustry.core.*;
 import mindustry.entities.*;
 import seam.core.*;
 import seam.entities.*;
-import seam.graphics.invalidation.*;
 import seam.runtime.control.*;
-import seam.runtime.mutations.*;
 import seam.runtime.update.*;
 import seam.world.*;
 
@@ -33,8 +31,8 @@ public final class SeamRuntime{
     public final SeamGroupSet groups;
     public final EntityCollisions collisions;
     public final SeamClock clock;
-    public final SeamMutationQueue mutations;
-    public final SeamRenderInvalidationQueue renderInvalidation;
+//    public final SeamMutationQueue mutations;
+//    public final SeamRenderInvalidationQueue renderInvalidation;
 
     private Status status = Status.created;
 
@@ -58,8 +56,6 @@ public final class SeamRuntime{
         this.groups = new SeamGroupSet(config.width, config.height);
         this.collisions = new EntityCollisions();
         this.clock = new SeamClock();
-        this.mutations = new SeamMutationQueue();
-        this.renderInvalidation = new SeamRenderInvalidationQueue();
 
         loadEmptyWorld(config.width, config.height);
     }
@@ -85,8 +81,6 @@ public final class SeamRuntime{
     SeamGroupSet groups,
     EntityCollisions collisions,
     SeamClock clock,
-    SeamMutationQueue mutations,
-    SeamRenderInvalidationQueue renderInvalidation,
     SeamRuntimeUpdatePolicy updatePolicy
     ){
         this.id = id;
@@ -97,8 +91,6 @@ public final class SeamRuntime{
         this.groups = groups;
         this.collisions = collisions;
         this.clock = clock;
-        this.mutations = mutations;
-        this.renderInvalidation = renderInvalidation;
         this.updatePolicy = updatePolicy;
         this.status = Status.loaded;
     }
@@ -113,8 +105,6 @@ public final class SeamRuntime{
         SeamGroupSet.wrapCurrent(),
         Vars.collisions,
         new SeamClock(),
-        new SeamMutationQueue(),
-        new SeamRenderInvalidationQueue(),
         SeamRuntimeUpdatePolicy.disabled()
         );
     }
@@ -130,9 +120,6 @@ public final class SeamRuntime{
 
         groups.resize(width, height);
         clock.reset();
-        mutations.clear();
-        renderInvalidation.clear();
-        renderInvalidation.markFull();
 
         setStatus(Status.loaded);
     }
@@ -222,8 +209,6 @@ public final class SeamRuntime{
 
         groups.clear();
         clock.reset();
-        mutations.clear();
-        renderInvalidation.clear();
         status = Status.disposed;
         updatePolicy = updatePolicy.withEnabled(false);
     }
