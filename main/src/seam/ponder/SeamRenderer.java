@@ -5,7 +5,9 @@ import arc.graphics.g2d.*;
 import mindustry.*;
 import mindustry.core.*;
 import mindustry.game.*;
+import mindustry.gen.*;
 import mindustry.graphics.*;
+import seam.*;
 import seam.graphics.*;
 import seam.runtime.*;
 
@@ -34,8 +36,7 @@ public class SeamRenderer {
 		batch.rotation = rot;
 		batch.begin();
 
-		World oldWorld = Vars.world;
-		Vars.world = runtime.world;
+		Seam.services.stack.enter(runtime);
 
 		Core.camera.position.sub(x, y);
 		Core.camera.update();
@@ -45,11 +46,12 @@ public class SeamRenderer {
 		// TODO darkness
 		// TODO overlay
 		// TODO block (env)
-		// TODO blocks
+		Groups.draw.each(Drawc::draw);
 
-		Vars.world = oldWorld;
 		Core.camera.position.add(x, y);
 		Core.camera.update();
+
+		Seam.services.stack.exit();
 
 		batch.end();
 	}

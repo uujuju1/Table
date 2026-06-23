@@ -1,29 +1,60 @@
 package seam.ponder;
 
+import arc.files.*;
+import arc.util.serialization.*;
 import mindustry.content.*;
+import mindustry.core.*;
 import seam.*;
 import seam.core.*;
 import seam.runtime.*;
 import seam.runtime.update.*;
 
 public class Ponder {
-
-	public static SeamRuntime buildEmpty(String name) {
+	public static SeamRuntime buildEmpty(String name, int width, int height) {
 		SeamRuntime res = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder().id(SeamRuntimeRegistry.nextId())
 			.name(name)
-			.size(5, 5)
+			.size(width, height)
 			.updatePolicy(SeamRuntimeUpdatePolicy.all())
 			.build()
 		);
 
 		Seam.services.executor.call(res, SeamPhase.manual, runtime -> {
-			runtime.world.setGenerating(true);
-			runtime.world.tiles.eachTile(tile -> tile.setFloor(Blocks.metalFloor.asFloor()));
-			runtime.world.setGenerating(false);
+			generateFloor(runtime.world);
 			return null;
 		});
 
 		return res;
+	}
+
+	public static void generateFloor(World world) {
+		world.setGenerating(true);
+		world.tiles.eachTile(tile -> {
+			tile.setFloor(Blocks.metalTiles9.asFloor());
+
+			if (tile.x % 4 > 0 && tile.y % 4 > 0) tile.setFloor(Blocks.metalTiles7.asFloor());
+		});
+		world.setGenerating(false);
+	}
+
+	public static SeamRuntime loadFromJson(Fi file) {
+		if (!file.exists()) throw new RuntimeException("Cannot Parse runtime: File not found");
+
+		JsonValue jsonFile = new JsonReader().parse(file);
+
+		SeamRuntime runtime = Seam.services.runtimes.create(
+			SeamRuntimeConfig.builder()
+				.name(jsonFile.getString("name"))
+				.id(SeamRuntimeRegistry.nextId())
+				.size(jsonFile.getInt("width") * 4 + 1, jsonFile.getInt("height") * 4 + 1)
+				.build()
+		);
+
+		Seam.services.executor.call(runtime, SeamPhase.manual, run -> {
+			generateFloor(run.world);
+			return null;
+		});
+
+		return runtime;
 	}
 }

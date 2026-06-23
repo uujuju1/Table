@@ -31,8 +31,6 @@ public final class SeamRuntime{
     public final SeamGroupSet groups;
     public final EntityCollisions collisions;
     public final SeamClock clock;
-//    public final SeamMutationQueue mutations;
-//    public final SeamRenderInvalidationQueue renderInvalidation;
 
     private Status status = Status.created;
 

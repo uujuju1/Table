@@ -51,7 +51,7 @@ public class FetchBatch extends Batch {
 			}
 
 			for (int i = 0; i < vertices.length / 6; i++) {
-				temp.set(vertices[i * 6], vertices[i * 6 + 1]).sub(centerx, centery).rotate(rotation).scl(scaleX, scaleY).add(centerx, centery);
+				temp.set(vertices[i * 6], vertices[i * 6 + 1]).sub(centerx, centery).rotate(rotation).add(centerx, centery).scl(scaleX, scaleY).rotate(rotation);
 
 				vertices[i * 6] = temp.x + x;
 				vertices[i * 6 + 1] = temp.y + y;
@@ -64,8 +64,8 @@ public class FetchBatch extends Batch {
 	@Override
 	protected void draw(TextureRegion region, float x, float y, float originX, float originY, float width, float height, float rotation) {
 		wrap(() -> {
-			float endX = Angles.trnsx(this.rotation, x + width / 2f, y + height / 2f);
-			float endY = Angles.trnsy(this.rotation, x + width / 2f, y + height / 2f);
+			float endX = Angles.trnsx(this.rotation, x + width / 2f, y + height / 2f) * scaleX;
+			float endY = Angles.trnsy(this.rotation, x + width / 2f, y + height / 2f) * scaleY;
 			Draw.rect(region, endX + this.x, endY + this.y, width * scaleX, width * scaleY, originX, originY, rotation + this.rotation);
 		});
 	}
