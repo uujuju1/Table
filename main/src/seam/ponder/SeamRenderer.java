@@ -38,8 +38,8 @@ public class SeamRenderer {
 
 		Seam.services.stack.enter(runtime);
 
-		Core.camera.position.sub(x, y);
-		Core.camera.update();
+//		Core.camera.position.sub(x, y);
+//		Core.camera.update();
 
 		// TODO floors
 		Draw.draw(Layer.floor, () -> floorRenderer.drawFloor());
@@ -48,8 +48,8 @@ public class SeamRenderer {
 		// TODO block (env)
 		Groups.draw.each(Drawc::draw);
 
-		Core.camera.position.add(x, y);
-		Core.camera.update();
+//		Core.camera.position.add(x, y);
+//		Core.camera.update();
 
 		Seam.services.stack.exit();
 

@@ -41,12 +41,33 @@ public class Ponder {
 		if (!file.exists()) throw new RuntimeException("Cannot Parse runtime: File not found");
 
 		JsonValue jsonFile = new JsonReader().parse(file);
+		JsonValue updatePolicy = jsonFile.get("updatePolicy");
+
+		int width = jsonFile.getInt("width", 1);
+		int height = jsonFile.getInt("height", 1);
 
 		SeamRuntime runtime = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder()
-				.name(jsonFile.getString("name"))
-				.id(SeamRuntimeRegistry.nextId())
-				.size(jsonFile.getInt("width") * 4 + 1, jsonFile.getInt("height") * 4 + 1)
+				.name("ponder")
+				.id(1)
+				.size(width * 4 + 1, height * 4 + 1)
+				.updatePolicy(
+					updatePolicy == null ? SeamRuntimeUpdatePolicy.all() :
+					SeamRuntimeUpdatePolicy.builder()
+						.enabled(updatePolicy.getBoolean("updates", false))
+						.buildings(updatePolicy.getBoolean("buildings", false))
+						.bullets(updatePolicy.getBoolean("bullets", false))
+						.collisions(updatePolicy.getBoolean("collisions", false))
+						.draw(updatePolicy.getBoolean("draw", false))
+						.fires(updatePolicy.getBoolean("fires", false))
+						.power(updatePolicy.getBoolean("power", false))
+						.puddles(updatePolicy.getBoolean("puddles", false))
+						.sync(updatePolicy.getBoolean("sync", false))
+						.teams(updatePolicy.getBoolean("teams", false))
+						.units(updatePolicy.getBoolean("units", false))
+						.weather(updatePolicy.getBoolean("weather", false))
+						.build()
+				)
 				.build()
 		);
 

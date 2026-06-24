@@ -43,15 +43,15 @@ public class FetchBatch extends Batch {
 			float[] vertices = new float[spriteVertices.length];
 			System.arraycopy(spriteVertices, 0, vertices, 0, vertices.length);
 
-			float centerx = 0, centery = 0;
+//			float centerx = 0, centery = 0;
+//
+//			for (int i = 0; i < vertices.length / 6; i++) {es.length / 6);
+////				centery += vertices[i * 6 + 1] / (vertices.length / 6);
+////			}
+//				centerx += vertices[i * 6] / (vertic
 
 			for (int i = 0; i < vertices.length / 6; i++) {
-				centerx += vertices[i * 6] / (vertices.length / 6);
-				centery += vertices[i * 6 + 1] / (vertices.length / 6);
-			}
-
-			for (int i = 0; i < vertices.length / 6; i++) {
-				temp.set(vertices[i * 6], vertices[i * 6 + 1]).sub(centerx, centery).rotate(rotation).add(centerx, centery).scl(scaleX, scaleY).rotate(rotation);
+				temp.set(vertices[i * 6], vertices[i * 6 + 1]).scl(scaleX, scaleY).rotate(rotation);
 
 				vertices[i * 6] = temp.x + x;
 				vertices[i * 6 + 1] = temp.y + y;
