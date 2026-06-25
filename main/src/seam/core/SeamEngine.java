@@ -13,51 +13,15 @@ public final class SeamEngine {
 	private final SeamRuntimeStack stack;
 	private final SeamRuntimeExecutor executor;
 
-	private boolean enabled = true;
-	private boolean automatic = true;
-	private boolean validateAfterStep = true;
-	private boolean respectMainPause = true;
+	public boolean enabled = true;
+	public boolean automatic = true;
+	public boolean validateAfterStep = true;
+	public boolean respectMainPause = true;
 
 	public SeamEngine(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack, SeamRuntimeExecutor executor) {
-		if (runtimes == null) throw new NullPointerException("runtimes");
-		if (stack == null) throw new NullPointerException("stack");
-		if (executor == null) throw new NullPointerException("executor");
-
 		this.runtimes = runtimes;
 		this.stack = stack;
 		this.executor = executor;
-	}
-
-	public boolean enabled() {
-		return enabled;
-	}
-
-	public void enabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	public boolean automatic() {
-		return automatic;
-	}
-
-	public void automatic(boolean automatic) {
-		this.automatic = automatic;
-	}
-
-	public boolean validateAfterStep() {
-		return validateAfterStep;
-	}
-
-	public void validateAfterStep(boolean validateAfterStep) {
-		this.validateAfterStep = validateAfterStep;
-	}
-
-	public boolean respectMainPause() {
-		return respectMainPause;
-	}
-
-	public void respectMainPause(boolean respectMainPause) {
-		this.respectMainPause = respectMainPause;
 	}
 
 	public void update() {
