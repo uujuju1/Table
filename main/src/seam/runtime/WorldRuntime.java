@@ -1,5 +1,6 @@
 package seam.runtime;
 
+import arc.struct.*;
 import mindustry.*;
 import mindustry.core.*;
 import mindustry.entities.*;
@@ -9,7 +10,7 @@ import seam.runtime.control.*;
 import seam.runtime.update.*;
 import seam.world.*;
 
-public final class SeamRuntime{
+public final class WorldRuntime {
     public enum Kind{
         main,
         subworld
@@ -31,13 +32,14 @@ public final class SeamRuntime{
     public final SeamGroupSet groups;
     public final EntityCollisions collisions;
     public final SeamClock clock;
+    public final Seq<RuntimeUpdate> updates = new Seq<>();
 
     private Status status = Status.created;
 
     private SeamRuntimeUpdatePolicy updatePolicy;
     private boolean validateOnUpdate = true;
 
-    public SeamRuntime(SeamRuntimeConfig config){
+    public WorldRuntime(SeamRuntimeConfig config){
         config.validate();
 
         if(config.kind == Kind.main){
@@ -58,7 +60,7 @@ public final class SeamRuntime{
         loadEmptyWorld(config.width, config.height);
     }
 
-    public SeamRuntime(int id, String name, int width, int height){
+    public WorldRuntime(int id, String name, int width, int height){
         this(
         SeamRuntimeConfig.builder()
         .id(id)
@@ -70,7 +72,7 @@ public final class SeamRuntime{
         );
     }
 
-    private SeamRuntime(
+    private WorldRuntime(
     int id,
     String name,
     Kind kind,
@@ -93,8 +95,8 @@ public final class SeamRuntime{
         this.status = Status.loaded;
     }
 
-    public static SeamRuntime wrapCurrentMain(){
-        return new SeamRuntime(
+    public static WorldRuntime wrapCurrentMain(){
+        return new WorldRuntime(
         0,
         "main",
         Kind.main,

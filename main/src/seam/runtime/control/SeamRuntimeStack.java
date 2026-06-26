@@ -1,7 +1,6 @@
 package seam.runtime.control;
 
 import seam.core.*;
-import seam.runtime.*;
 import arc.*;
 import arc.graphics.*;
 import arc.struct.*;
@@ -10,11 +9,12 @@ import mindustry.*;
 import mindustry.core.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
+import seam.runtime.WorldRuntime;
 
 import java.lang.reflect.*;
 
 public final class SeamRuntimeStack{
-    private final Seq<SeamRuntime> stack = new Seq<>();
+    private final Seq<WorldRuntime> stack = new Seq<>();
     private final Seq<SeamPhase> phases = new Seq<>();
     private final Seq<ContextSnapshot> snapshots = new Seq<>();
 
@@ -26,7 +26,7 @@ public final class SeamRuntimeStack{
         return stack.size;
     }
 
-    public SeamRuntime current(){
+    public WorldRuntime current(){
         return stack.isEmpty() ? null : stack.peek();
     }
 
@@ -34,11 +34,11 @@ public final class SeamRuntimeStack{
         return phases.isEmpty() ? null : phases.peek();
     }
 
-    public void enter(SeamRuntime runtime){
+    public void enter(WorldRuntime runtime){
         enter(runtime, SeamPhase.manual);
     }
 
-    public void enter(SeamRuntime runtime, SeamPhase phase){
+    public void enter(WorldRuntime runtime, SeamPhase phase){
         if(runtime == null){
             throw new NullPointerException("runtime");
         }
@@ -82,7 +82,7 @@ public final class SeamRuntimeStack{
             return;
         }
 
-        SeamRuntime runtime = stack.peek();
+        WorldRuntime runtime = stack.peek();
         ContextSnapshot snapshot = snapshots.peek();
 
         snapshot.wrapDelayedRuns(this, runtime);
@@ -105,7 +105,7 @@ public final class SeamRuntimeStack{
         || phase == SeamPhase.updateDelayed;
     }
 
-    private static void applyRuntimeCamera(SeamRuntime runtime){
+    private static void applyRuntimeCamera(WorldRuntime runtime){
         Camera camera = Core.camera;
 
         if(camera == null){
@@ -149,7 +149,7 @@ public final class SeamRuntimeStack{
         private final boolean captureDelayedRuns;
         private final int delayedRunStart;
 
-        ContextSnapshot(SeamRuntime runtime, SeamPhase phase){
+        ContextSnapshot(WorldRuntime runtime, SeamPhase phase){
             this.world = Vars.world;
             this.state = Vars.state;
             this.collisions = Vars.collisions;
@@ -187,7 +187,7 @@ public final class SeamRuntimeStack{
             this.delayedRunStart = captureDelayedRuns ? DelayedRunBridge.size() : -1;
         }
 
-        void wrapDelayedRuns(SeamRuntimeStack owner, SeamRuntime runtime){
+        void wrapDelayedRuns(SeamRuntimeStack owner, WorldRuntime runtime){
             if(!captureDelayedRuns || delayedRunStart < 0 || runtime == null || runtime.main()){
                 return;
             }
@@ -225,10 +225,10 @@ public final class SeamRuntimeStack{
 
     private static final class RuntimeDelayedRunnable implements Runnable{
         private final SeamRuntimeStack owner;
-        private final SeamRuntime runtime;
+        private final WorldRuntime runtime;
         private final Runnable delegate;
 
-        RuntimeDelayedRunnable(SeamRuntimeStack owner, SeamRuntime runtime, Runnable delegate){
+        RuntimeDelayedRunnable(SeamRuntimeStack owner, WorldRuntime runtime, Runnable delegate){
             if(owner == null){
                 throw new NullPointerException("owner");
             }
@@ -288,7 +288,7 @@ public final class SeamRuntimeStack{
             return runs == null ? -1 : runs.size;
         }
 
-        static void wrapNew(SeamRuntimeStack owner, SeamRuntime runtime, int start){
+        static void wrapNew(SeamRuntimeStack owner, WorldRuntime runtime, int start){
             Seq<?> runs = runs();
 
             if(runs == null || start < 0){

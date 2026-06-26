@@ -4,21 +4,21 @@ import seam.runtime.control.*;
 import arc.struct.*;
 
 public final class SeamRuntimeRegistry{
-    private final IntMap<SeamRuntime> byId = new IntMap<>();
-    private final Seq<SeamRuntime> runtimes = new Seq<>();
+    private final IntMap<WorldRuntime> byId = new IntMap<>();
+    private final Seq<WorldRuntime> runtimes = new Seq<>();
     public static int curId;
 
-    private SeamRuntime main;
+    private WorldRuntime main;
 
-    public SeamRuntime main(){
+    public WorldRuntime main(){
         return main;
     }
 
-    public Seq<SeamRuntime> all(){
+    public Seq<WorldRuntime> all(){
         return runtimes.copy();
     }
 
-    public SeamRuntime get(int id){
+    public WorldRuntime get(int id){
         return byId.get(id);
     }
 
@@ -32,7 +32,7 @@ public final class SeamRuntimeRegistry{
     }
 
     public void refreshMain(){
-        SeamRuntime refreshedMain = SeamRuntime.wrapCurrentMain();
+        WorldRuntime refreshedMain = WorldRuntime.wrapCurrentMain();
 
         SeamRuntimeValidator.validateRuntime(refreshedMain, false);
 
@@ -49,10 +49,10 @@ public final class SeamRuntimeRegistry{
         SeamRuntimeValidator.validateRegistry(this);
     }
 
-    public SeamRuntime create(SeamRuntimeConfig config){
+    public WorldRuntime create(SeamRuntimeConfig config){
         config.validate();
 
-        if(config.kind == SeamRuntime.Kind.main){
+        if(config.kind == WorldRuntime.Kind.main){
             throw new IllegalArgumentException("Main runtime is managed by refreshMain().");
         }
 
@@ -64,7 +64,7 @@ public final class SeamRuntimeRegistry{
             throw new IllegalArgumentException("Runtime id already exists: " + config.id);
         }
 
-        SeamRuntime runtime = new SeamRuntime(config);
+        WorldRuntime runtime = new WorldRuntime(config);
 
         SeamRuntimeValidator.validateRuntime(runtime, true);
 
@@ -77,7 +77,7 @@ public final class SeamRuntimeRegistry{
     }
 
     public void remove(int id){
-        SeamRuntime runtime = byId.get(id);
+        WorldRuntime runtime = byId.get(id);
 
         if(runtime == null){
             return;
@@ -96,9 +96,9 @@ public final class SeamRuntimeRegistry{
     }
 
     public void clearSubworlds(){
-        Seq<SeamRuntime> copy = runtimes.copy();
+        Seq<WorldRuntime> copy = runtimes.copy();
 
-        for(SeamRuntime runtime : copy){
+        for(WorldRuntime runtime : copy){
             if(!runtime.main()){
                 remove(runtime.id);
             }

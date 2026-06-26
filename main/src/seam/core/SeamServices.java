@@ -4,6 +4,7 @@ import arc.*;
 import mindustry.game.EventType.*;
 import seam.ponder.*;
 import seam.runtime.*;
+import seam.runtime.WorldRuntime;
 import seam.runtime.control.*;
 
 public final class SeamServices implements ApplicationListener {
@@ -14,7 +15,7 @@ public final class SeamServices implements ApplicationListener {
 
 	public final SeamRenderer renderer = new SeamRenderer();
 
-	private SeamRuntime mainRuntime;
+	private WorldRuntime mainRuntime;
 	private boolean eventsInstalled;
 
 	public void init(Runnable refresh) {
@@ -41,7 +42,7 @@ public final class SeamServices implements ApplicationListener {
 		});
 	}
 
-	public SeamRuntime mainRuntime() {
+	public WorldRuntime mainRuntime() {
 		return mainRuntime;
 	}
 

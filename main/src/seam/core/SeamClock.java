@@ -1,52 +1,61 @@
 package seam.core;
 
-public final class SeamClock{
-    private long frame;
-    private double tick;
-    private float time;
-    private float delta;
+import arc.func.*;
+import arc.util.*;
 
-    public long frame(){
-        return frame;
-    }
+public final class SeamClock {
+	private Floatp deltaProvider = () -> Time.delta;
+	private long frame;
+	private double tick;
+	private float time;
+	private float delta;
 
-    public double tick(){
-        return tick;
-    }
+	public long frame() {
+		return frame;
+	}
 
-    public float time(){
-        return time;
-    }
+	public double tick() {
+		return tick;
+	}
 
-    public float delta(){
-        return delta;
-    }
+	public float time() {
+		return time;
+	}
 
-    public void advance(float baseDelta){
-        if(baseDelta < 0f){
-            throw new IllegalArgumentException("Clock delta cannot be negative.");
-        }
+	public float delta() {
+		return delta;
+	}
 
-        this.delta = baseDelta;
-        this.time += baseDelta;
-        this.tick += baseDelta;
-        this.frame++;
-    }
+	public void advance() {
+		float baseDelta = deltaProvider.get();
+		if (baseDelta < 0f) {
+			throw new IllegalArgumentException("Clock delta cannot be negative.");
+		}
 
-    public void reset(){
-        frame = 0L;
-        tick = 0.0;
-        time = 0f;
-        delta = 0f;
-    }
+		this.delta = baseDelta;
+		this.time += baseDelta;
+		this.tick += baseDelta;
+		this.frame++;
+	}
 
-    @Override
-    public String toString(){
-        return "SeamClock{" +
-        "frame=" + frame +
-        ", tick=" + tick +
-        ", time=" + time +
-        ", delta=" + delta +
-        '}';
-    }
+	public void reset() {
+		frame = 0L;
+		tick = 0.0;
+		time = 0f;
+		delta = 0f;
+	}
+
+	public void setDelta(Floatp deltaProvider) {
+		this.deltaProvider = deltaProvider;
+	}
+
+	@Override
+	public String toString() {
+		return "SeamClock{" +
+			"frame=" + frame +
+			", tick=" + tick +
+			", time=" + time +
+			", delta=" + delta +
+			'}';
+	}
 }

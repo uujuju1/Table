@@ -3,13 +3,12 @@ package seam.ponder;
 import arc.*;
 import arc.graphics.g2d.*;
 import mindustry.*;
-import mindustry.core.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import seam.*;
 import seam.graphics.*;
-import seam.runtime.*;
+import seam.runtime.WorldRuntime;
 
 public class SeamRenderer {
 	public FetchBatch batch = new FetchBatch();
@@ -28,7 +27,7 @@ public class SeamRenderer {
 		});
 	}
 
-	public void drawRuntime(SeamRuntime runtime, float x, float y, float sclX, float sclY, float rot) {
+	public void drawRuntime(WorldRuntime runtime, float x, float y, float sclX, float sclY, float rot) {
 		batch.x = x;
 		batch.y = y;
 		batch.scaleX = sclX;
@@ -38,18 +37,15 @@ public class SeamRenderer {
 
 		Seam.services.stack.enter(runtime);
 
-//		Core.camera.position.sub(x, y);
-//		Core.camera.update();
-
 		// TODO floors
 		Draw.draw(Layer.floor, () -> floorRenderer.drawFloor());
 		// TODO darkness
 		// TODO overlay
-		// TODO block (env)
+		Draw.z(Layer.block);
+		Vars.world.tiles.eachTile(tile -> {
+			if (tile.build != null) tile.build.draw();
+		});
 		Groups.draw.each(Drawc::draw);
-
-//		Core.camera.position.add(x, y);
-//		Core.camera.update();
 
 		Seam.services.stack.exit();
 

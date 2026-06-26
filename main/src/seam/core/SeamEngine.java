@@ -1,12 +1,10 @@
 package seam.core;
 
 import arc.struct.*;
-import arc.util.*;
 import mindustry.*;
 import mindustry.gen.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
-import seam.runtime.update.*;
 
 public final class SeamEngine {
 	private final SeamRuntimeRegistry runtimes;
@@ -38,9 +36,9 @@ public final class SeamEngine {
 		if (!SeamRuntimeValidator.mainWorldReady()) throw new IllegalStateException("Cannot step SeamEngine: main world is not ready.");
 		if (stack.active()) throw new IllegalStateException("Cannot step SeamEngine while a runtime context is already active.");
 
-		Seq<SeamRuntime> copy = runtimes.all();
+		Seq<WorldRuntime> copy = runtimes.all();
 
-		for (SeamRuntime runtime : copy) {
+		for (WorldRuntime runtime : copy) {
 			if (!runtime.updateEnabled()) continue;
 
 			updateRuntime(runtime);
@@ -57,7 +55,7 @@ public final class SeamEngine {
 		for (int i = 0; i < amount; i++) step();
 	}
 
-	private void updateRuntime(SeamRuntime runtime) {
+	private void updateRuntime(WorldRuntime runtime) {
 		runtime.requireWorldReady();
 
 		if (runtime.validateOnUpdate()) {
@@ -67,7 +65,7 @@ public final class SeamEngine {
 		SeamRuntimeUpdatePolicy policy = runtime.updatePolicy();
 
 		run(runtime, SeamPhase.updatePre, active -> {
-			active.clock.advance(Time.delta);
+			active.clock.advance();
 			active.state.tick += active.clock.delta();
 			active.state.updateId++;
 			return null;
@@ -90,15 +88,19 @@ public final class SeamEngine {
 		}
 
 		run(runtime, SeamPhase.updatePost, active -> {
-			if (active.validateOnUpdate()) {
-				SeamRuntimeValidator.validateActiveContext(active);
-			}
+			active.updates.each(update -> active.clock.time() > update.startTime && active.clock.time() < update.endTime || update.startTime == update.endTime, update -> {
+				if (!update.acted) update.act(active);
+				update.acted = true;
+				update.update(active);
+			});
+
+			if (active.validateOnUpdate()) SeamRuntimeValidator.validateActiveContext(active);
 
 			return null;
 		});
 	}
 
-	private void updateLightweightBuildingRuntime(SeamRuntime runtime, SeamRuntimeUpdatePolicy policy) {
+	private void updateLightweightBuildingRuntime(WorldRuntime runtime, SeamRuntimeUpdatePolicy policy) {
 		if (policy.buildings) {
 			run(runtime, SeamPhase.updateBuildings, active -> {
 				Groups.build.update();
@@ -126,7 +128,7 @@ public final class SeamEngine {
 	}
 
 	private void run(
-		SeamRuntime runtime,
+		WorldRuntime runtime,
 		SeamPhase phase,
 		SeamRuntimeExecutor.Call<Void> action
 	) {

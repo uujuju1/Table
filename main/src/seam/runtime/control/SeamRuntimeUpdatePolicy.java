@@ -1,4 +1,4 @@
-package seam.runtime.update;
+package seam.runtime.control;
 
 public final class SeamRuntimeUpdatePolicy{
     public final boolean enabled;

@@ -6,7 +6,6 @@ import arc.graphics.g2d.*;
 import arc.graphics.gl.*;
 import arc.math.*;
 import arc.math.geom.*;
-import seam.runtime.*;
 
 /**
  * Fetches draw calls so that each draw call can have a certain transformation applied to it.
@@ -43,13 +42,6 @@ public class FetchBatch extends Batch {
 			float[] vertices = new float[spriteVertices.length];
 			System.arraycopy(spriteVertices, 0, vertices, 0, vertices.length);
 
-//			float centerx = 0, centery = 0;
-//
-//			for (int i = 0; i < vertices.length / 6; i++) {es.length / 6);
-////				centery += vertices[i * 6 + 1] / (vertices.length / 6);
-////			}
-//				centerx += vertices[i * 6] / (vertic
-
 			for (int i = 0; i < vertices.length / 6; i++) {
 				temp.set(vertices[i * 6], vertices[i * 6 + 1]).scl(scaleX, scaleY).rotate(rotation);
 
@@ -64,8 +56,8 @@ public class FetchBatch extends Batch {
 	@Override
 	protected void draw(TextureRegion region, float x, float y, float originX, float originY, float width, float height, float rotation) {
 		wrap(() -> {
-			float endX = Angles.trnsx(this.rotation, x + width / 2f, y + height / 2f) * scaleX;
-			float endY = Angles.trnsy(this.rotation, x + width / 2f, y + height / 2f) * scaleY;
+			float endX = Angles.trnsx(this.rotation, (x + width / 2f) * scaleX, (y + height / 2f) * scaleY);
+			float endY = Angles.trnsy(this.rotation, (x + width / 2f) * scaleX, (y + height / 2f) * scaleY);
 			Draw.rect(region, endX + this.x, endY + this.y, width * scaleX, width * scaleY, originX, originY, rotation + this.rotation);
 		});
 	}

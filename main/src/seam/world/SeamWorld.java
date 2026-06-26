@@ -6,11 +6,11 @@ import arc.struct.*;
 import arc.util.*;
 import mindustry.core.*;
 import mindustry.game.*;
-import seam.runtime.*;
+import seam.runtime.WorldRuntime;
 
 @SuppressWarnings("unchecked")
 public class SeamWorld extends World {
-	public SeamRuntime runtime;
+	public WorldRuntime runtime;
 
 	public SeamWorld() {
 		ObjectMap<Object, Seq<Cons<?>>> events = Reflect.get(Events.class, "events");

@@ -1,10 +1,11 @@
 package seam.runtime.control;
 
-import seam.entities.*;
-import seam.runtime.*;
 import arc.struct.*;
 import mindustry.*;
 import mindustry.gen.*;
+import seam.entities.*;
+import seam.runtime.*;
+import seam.runtime.WorldRuntime;
 
 public final class SeamRuntimeValidator{
     private SeamRuntimeValidator(){
@@ -16,7 +17,7 @@ public final class SeamRuntimeValidator{
 
         IntSet ids = new IntSet();
 
-        for(SeamRuntime runtime : registry.all()){
+        for(WorldRuntime runtime : registry.all()){
             require(runtime != null, "Registry contains null runtime.");
             require(ids.add(runtime.id), "Duplicate runtime id: " + runtime.id);
             require(registry.get(runtime.id) == runtime, "Registry id " + runtime.id + " does not point to its runtime.");
@@ -24,23 +25,23 @@ public final class SeamRuntimeValidator{
             validateRuntime(runtime, false);
         }
 
-        SeamRuntime main = registry.main();
+        WorldRuntime main = registry.main();
 
         require(main.id == 0, "Main runtime id must be 0.");
-        require(main.kind == SeamRuntime.Kind.main, "Main runtime kind must be main.");
+        require(main.kind == WorldRuntime.Kind.main, "Main runtime kind must be main.");
         require(registry.get(0) == main, "Registry id 0 does not point to main runtime.");
     }
 
-    public static void validateRuntime(SeamRuntime runtime){
+    public static void validateRuntime(WorldRuntime runtime){
         validateRuntime(runtime, false);
     }
 
-    public static void validateRuntime(SeamRuntime runtime, boolean deepTiles){
+    public static void validateRuntime(WorldRuntime runtime, boolean deepTiles){
         require(runtime != null, "Runtime is null.");
         require(runtime.id >= 0, "Runtime id must be >= 0.");
         require(runtime.name != null && !runtime.name.isBlank(), "Runtime name is blank.");
         require(runtime.kind != null, "Runtime kind is null.");
-        require(runtime.status() == SeamRuntime.Status.loaded, "Runtime is not loaded: " + runtime);
+        require(runtime.status() == WorldRuntime.Status.loaded, "Runtime is not loaded: " + runtime);
 
         require(runtime.world != null, "Runtime world is null: " + runtime);
         require(runtime.state != null, "Runtime state is null: " + runtime);
@@ -50,7 +51,7 @@ public final class SeamRuntimeValidator{
 
         validateGroups(runtime.groups);
 
-        if(runtime.kind == SeamRuntime.Kind.main){
+        if(runtime.kind == WorldRuntime.Kind.main){
             require(runtime.id == 0, "Main runtime id must be 0.");
 
             if(runtime.worldReady()){
@@ -71,7 +72,7 @@ public final class SeamRuntimeValidator{
         }
     }
 
-    public static void validateActiveContext(SeamRuntime runtime){
+    public static void validateActiveContext(WorldRuntime runtime){
         validateRuntime(runtime, false);
 
         same(Vars.world, runtime.world, "Vars.world does not point to active runtime world.");
@@ -118,7 +119,7 @@ public final class SeamRuntimeValidator{
         require(groups.powerGraph != null, "Groups.powerGraph is null.");
     }
 
-    private static void validateTiles(SeamRuntime runtime){
+    private static void validateTiles(WorldRuntime runtime){
         for(int x = 0; x < runtime.world.width(); x++){
             for(int y = 0; y < runtime.world.height(); y++){
                 require(

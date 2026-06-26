@@ -1,13 +1,13 @@
 package seam.runtime;
 
-import seam.runtime.update.*;
+import seam.runtime.control.*;
 
 public final class SeamRuntimeConfig{
     public final int id;
     public final String name;
     public final int width;
     public final int height;
-    public final SeamRuntime.Kind kind;
+    public final WorldRuntime.Kind kind;
     public final SeamRuntimeUpdatePolicy updatePolicy;
 
     private SeamRuntimeConfig(Builder builder){
@@ -50,7 +50,7 @@ public final class SeamRuntimeConfig{
         private String name = "runtime";
         private int width = 1;
         private int height = 1;
-        private SeamRuntime.Kind kind = SeamRuntime.Kind.subworld;
+        private WorldRuntime.Kind kind = WorldRuntime.Kind.subworld;
         private SeamRuntimeUpdatePolicy updatePolicy = SeamRuntimeUpdatePolicy.buildingsOnly();
 
         public Builder id(int id){
@@ -69,7 +69,7 @@ public final class SeamRuntimeConfig{
             return this;
         }
 
-        public Builder kind(SeamRuntime.Kind kind){
+        public Builder kind(WorldRuntime.Kind kind){
             this.kind = kind;
             return this;
         }

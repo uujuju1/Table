@@ -7,11 +7,12 @@ import mindustry.core.*;
 import seam.*;
 import seam.core.*;
 import seam.runtime.*;
-import seam.runtime.update.*;
+import seam.runtime.WorldRuntime;
+import seam.runtime.control.*;
 
 public class Ponder {
-	public static SeamRuntime buildEmpty(String name, int width, int height) {
-		SeamRuntime res = Seam.services.runtimes.create(
+	public static WorldRuntime buildEmpty(String name, int width, int height) {
+		WorldRuntime res = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder().id(SeamRuntimeRegistry.nextId())
 			.name(name)
 			.size(width, height)
@@ -37,7 +38,7 @@ public class Ponder {
 		world.setGenerating(false);
 	}
 
-	public static SeamRuntime loadFromJson(Fi file) {
+	public static WorldRuntime loadFromJson(Fi file) {
 		if (!file.exists()) throw new RuntimeException("Cannot Parse runtime: File not found");
 
 		JsonValue jsonFile = new JsonReader().parse(file);
@@ -46,7 +47,7 @@ public class Ponder {
 		int width = jsonFile.getInt("width", 1);
 		int height = jsonFile.getInt("height", 1);
 
-		SeamRuntime runtime = Seam.services.runtimes.create(
+		WorldRuntime runtime = Seam.services.runtimes.create(
 			SeamRuntimeConfig.builder()
 				.name("ponder")
 				.id(1)

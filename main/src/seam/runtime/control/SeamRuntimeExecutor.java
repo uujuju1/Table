@@ -2,11 +2,12 @@ package seam.runtime.control;
 
 import seam.core.*;
 import seam.runtime.*;
+import seam.runtime.WorldRuntime;
 
 public final class SeamRuntimeExecutor{
     @FunctionalInterface
     public interface Call<T>{
-        T run(SeamRuntime runtime);
+        T run(WorldRuntime runtime);
     }
 
     private final SeamRuntimeRegistry runtimes;
@@ -35,7 +36,7 @@ public final class SeamRuntimeExecutor{
         this.validateAccess = validateAccess;
     }
 
-    public <T> T call(SeamRuntime runtime, SeamPhase phase, Call<T> task){
+    public <T> T call(WorldRuntime runtime, SeamPhase phase, Call<T> task){
         if(runtime == null){
             throw new NullPointerException("runtime");
         }
@@ -63,23 +64,23 @@ public final class SeamRuntimeExecutor{
         }
     }
 
-    public <T> T callRegistered(SeamRuntime runtime, SeamPhase phase, Call<T> task){
+    public <T> T callRegistered(WorldRuntime runtime, SeamPhase phase, Call<T> task){
         requireRegistered(runtime);
         return call(runtime, phase, task);
     }
 
-    public <T> T callExclusive(SeamRuntime runtime, SeamPhase phase, Call<T> task){
+    public <T> T callExclusive(WorldRuntime runtime, SeamPhase phase, Call<T> task){
         requireExclusive();
         return call(runtime, phase, task);
     }
 
-    public <T> T callRegisteredExclusive(SeamRuntime runtime, SeamPhase phase, Call<T> task){
+    public <T> T callRegisteredExclusive(WorldRuntime runtime, SeamPhase phase, Call<T> task){
         requireExclusive();
         requireRegistered(runtime);
         return call(runtime, phase, task);
     }
 
-    public void requireRegistered(SeamRuntime runtime){
+    public void requireRegistered(WorldRuntime runtime){
         if(runtime == null){
             throw new NullPointerException("runtime");
         }
