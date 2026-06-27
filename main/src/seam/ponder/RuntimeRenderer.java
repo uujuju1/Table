@@ -10,12 +10,12 @@ import seam.*;
 import seam.graphics.*;
 import seam.runtime.WorldRuntime;
 
-public class SeamRenderer {
+public class RuntimeRenderer {
 	public FetchBatch batch = new FetchBatch();
 
 	private SeamFloorRenderer floorRenderer;
 
-	public SeamRenderer() {
+	public RuntimeRenderer() {
 		Events.on(EventType.DisposeEvent.class, e -> {
 			batch.dispose();
 		});

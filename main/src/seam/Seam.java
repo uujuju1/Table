@@ -6,7 +6,7 @@ import seam.core.*;
 import seam.runtime.WorldRuntime;
 
 public class Seam extends Mod{
-    public static final SeamServices services = new SeamServices();
+    public static final TableApp services = new TableApp();
 
     public static WorldRuntime mainRuntime;
 
