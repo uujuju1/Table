@@ -1,98 +1,29 @@
 package seam.runtime.control;
 
-import seam.core.*;
 import seam.runtime.*;
-import seam.runtime.WorldRuntime;
 
-public final class SeamRuntimeExecutor{
-    @FunctionalInterface
-    public interface Call<T>{
-        T run(WorldRuntime runtime);
-    }
+public final class SeamRuntimeExecutor {
+	public interface Call<T> {
+		T run(WorldRuntime runtime);
+	}
 
-    private final SeamRuntimeRegistry runtimes;
-    private final SeamRuntimeStack stack;
+	private final SeamRuntimeRegistry runtimes;
+	private final SeamRuntimeStack stack;
 
-    private boolean validateAccess = true;
+	public SeamRuntimeExecutor(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack) {
+		this.runtimes = runtimes;
+		this.stack = stack;
+	}
 
-    public SeamRuntimeExecutor(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack){
-        if(runtimes == null){
-            throw new NullPointerException("runtimes");
-        }
+	public <T> T call(WorldRuntime runtime, Call<T> task) {
+		runtime.requireWorldReady();
 
-        if(stack == null){
-            throw new NullPointerException("stack");
-        }
+		stack.enter(runtime);
 
-        this.runtimes = runtimes;
-        this.stack = stack;
-    }
-
-    public boolean validateAccess(){
-        return validateAccess;
-    }
-
-    public void validateAccess(boolean validateAccess){
-        this.validateAccess = validateAccess;
-    }
-
-    public <T> T call(WorldRuntime runtime, SeamPhase phase, Call<T> task){
-        if(runtime == null){
-            throw new NullPointerException("runtime");
-        }
-
-        if(phase == null){
-            throw new NullPointerException("phase");
-        }
-
-        if(task == null){
-            throw new NullPointerException("task");
-        }
-
-        runtime.requireWorldReady();
-
-        stack.enter(runtime, phase);
-
-        try{
-            if(validateAccess){
-                SeamRuntimeValidator.validateActiveContext(runtime);
-            }
-
-            return task.run(runtime);
-        }finally{
-            stack.exit();
-        }
-    }
-
-    public <T> T callRegistered(WorldRuntime runtime, SeamPhase phase, Call<T> task){
-        requireRegistered(runtime);
-        return call(runtime, phase, task);
-    }
-
-    public <T> T callExclusive(WorldRuntime runtime, SeamPhase phase, Call<T> task){
-        requireExclusive();
-        return call(runtime, phase, task);
-    }
-
-    public <T> T callRegisteredExclusive(WorldRuntime runtime, SeamPhase phase, Call<T> task){
-        requireExclusive();
-        requireRegistered(runtime);
-        return call(runtime, phase, task);
-    }
-
-    public void requireRegistered(WorldRuntime runtime){
-        if(runtime == null){
-            throw new NullPointerException("runtime");
-        }
-
-        if(runtimes.get(runtime.id) != runtime){
-            throw new IllegalStateException("Runtime is not registered: " + runtime);
-        }
-    }
-
-    public void requireExclusive(){
-        if(stack.active()){
-            throw new IllegalStateException("Cannot perform exclusive Seam runtime operation while runtime stack is active.");
-        }
-    }
+		try {
+			return task.run(runtime);
+		} finally {
+			stack.exit();
+		}
+	}
 }

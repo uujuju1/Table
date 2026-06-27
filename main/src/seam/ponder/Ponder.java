@@ -5,7 +5,6 @@ import arc.util.serialization.*;
 import mindustry.content.*;
 import mindustry.core.*;
 import seam.*;
-import seam.core.*;
 import seam.runtime.*;
 
 public class Ponder {
@@ -14,11 +13,10 @@ public class Ponder {
 			SeamRuntimeConfig.builder().id(SeamRuntimeRegistry.nextId())
 			.name(name)
 			.size(width, height)
-//			.updatePolicy(SeamRuntimeUpdatePolicy.all())
 			.build()
 		);
 
-		Seam.services.executor.call(res, SeamPhase.manual, runtime -> {
+		Seam.services.executor.call(res, runtime -> {
 			generateFloor(runtime.world);
 			return null;
 		});
@@ -52,7 +50,7 @@ public class Ponder {
 				.build()
 		);
 
-		Seam.services.executor.call(runtime, SeamPhase.manual, run -> {
+		Seam.services.executor.call(runtime, run -> {
 			generateFloor(run.world);
 			return null;
 		});

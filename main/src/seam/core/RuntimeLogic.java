@@ -62,24 +62,24 @@ public final class RuntimeLogic {
 			SeamRuntimeValidator.validateRuntime(runtime, false);
 		}
 
-		run(runtime, SeamPhase.updatePre, active -> {
+		run(runtime, active -> {
 			active.clock.advance();
 			active.state.tick += active.clock.delta();
 			active.state.updateId++;
 			return null;
 		});
 
-		run(runtime, SeamPhase.updateTeams, active -> {
+		run(runtime, active -> {
 			active.state.teams.updateTeamStats();
 			return null;
 		});
 
-		run(runtime, SeamPhase.updateGroups, active -> {
+		run(runtime, active -> {
 			Groups.update();
 			return null;
 		});
 
-		run(runtime, SeamPhase.updatePost, active -> {
+		run(runtime, active -> {
 			active.updates.each(update -> active.clock.time() > update.startTime && active.clock.time() < update.endTime || update.startTime == update.endTime, update -> {
 				if (!update.acted) update.act(active);
 				update.acted = true;
@@ -92,8 +92,8 @@ public final class RuntimeLogic {
 		});
 	}
 
-	private void run(WorldRuntime runtime, SeamPhase phase, SeamRuntimeExecutor.Call<Void> action) {
-		executor.call(runtime, phase, active -> {
+	private void run(WorldRuntime runtime, SeamRuntimeExecutor.Call<Void> action) {
+		executor.call(runtime, active -> {
 			action.run(active);
 			return null;
 		});
