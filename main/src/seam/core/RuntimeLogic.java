@@ -6,7 +6,7 @@ import mindustry.gen.*;
 import seam.runtime.*;
 import seam.runtime.control.*;
 
-public final class SeamEngine {
+public final class RuntimeLogic {
 	private final SeamRuntimeRegistry runtimes;
 	private final SeamRuntimeStack stack;
 	private final SeamRuntimeExecutor executor;
@@ -16,7 +16,7 @@ public final class SeamEngine {
 	public boolean validateAfterStep = true;
 	public boolean respectMainPause = true;
 
-	public SeamEngine(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack, SeamRuntimeExecutor executor) {
+	public RuntimeLogic(SeamRuntimeRegistry runtimes, SeamRuntimeStack stack, SeamRuntimeExecutor executor) {
 		this.runtimes = runtimes;
 		this.stack = stack;
 		this.executor = executor;
@@ -62,8 +62,6 @@ public final class SeamEngine {
 			SeamRuntimeValidator.validateRuntime(runtime, false);
 		}
 
-		SeamRuntimeUpdatePolicy policy = runtime.updatePolicy();
-
 		run(runtime, SeamPhase.updatePre, active -> {
 			active.clock.advance();
 			active.state.tick += active.clock.delta();
@@ -71,21 +69,15 @@ public final class SeamEngine {
 			return null;
 		});
 
-		if (policy.teams) {
-			run(runtime, SeamPhase.updateTeams, active -> {
-				active.state.teams.updateTeamStats();
-				return null;
-			});
-		}
+		run(runtime, SeamPhase.updateTeams, active -> {
+			active.state.teams.updateTeamStats();
+			return null;
+		});
 
-		if (usesVanillaCentralEntityUpdate(policy)) {
-			run(runtime, SeamPhase.updateGroups, active -> {
-				Groups.update();
-				return null;
-			});
-		} else {
-			updateLightweightBuildingRuntime(runtime, policy);
-		}
+		run(runtime, SeamPhase.updateGroups, active -> {
+			Groups.update();
+			return null;
+		});
 
 		run(runtime, SeamPhase.updatePost, active -> {
 			active.updates.each(update -> active.clock.time() > update.startTime && active.clock.time() < update.endTime || update.startTime == update.endTime, update -> {
@@ -100,38 +92,7 @@ public final class SeamEngine {
 		});
 	}
 
-	private void updateLightweightBuildingRuntime(WorldRuntime runtime, SeamRuntimeUpdatePolicy policy) {
-		if (policy.buildings) {
-			run(runtime, SeamPhase.updateBuildings, active -> {
-				Groups.build.update();
-				return null;
-			});
-		}
-
-		if (policy.power) {
-			run(runtime, SeamPhase.updatePower, active -> {
-				Groups.powerGraph.update();
-				return null;
-			});
-		}
-	}
-
-	private boolean usesVanillaCentralEntityUpdate(SeamRuntimeUpdatePolicy policy) {
-		return policy.puddles
-			|| policy.fires
-			|| policy.weather
-			|| policy.bullets
-			|| policy.units
-			|| policy.sync
-			|| policy.draw
-			|| policy.collisions;
-	}
-
-	private void run(
-		WorldRuntime runtime,
-		SeamPhase phase,
-		SeamRuntimeExecutor.Call<Void> action
-	) {
+	private void run(WorldRuntime runtime, SeamPhase phase, SeamRuntimeExecutor.Call<Void> action) {
 		executor.call(runtime, phase, active -> {
 			action.run(active);
 			return null;

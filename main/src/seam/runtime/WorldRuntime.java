@@ -36,7 +36,6 @@ public final class WorldRuntime {
 
     private Status status = Status.created;
 
-    private SeamRuntimeUpdatePolicy updatePolicy;
     private boolean validateOnUpdate = true;
 
     public WorldRuntime(SeamRuntimeConfig config){
@@ -49,7 +48,6 @@ public final class WorldRuntime {
         this.id = config.id;
         this.name = config.name;
         this.kind = config.kind;
-        this.updatePolicy = config.updatePolicy;
 
         this.world = new SeamWorld();
         this.state = new GameState();
@@ -67,7 +65,6 @@ public final class WorldRuntime {
         .name(name)
         .size(width, height)
         .kind(Kind.subworld)
-        .updatePolicy(SeamRuntimeUpdatePolicy.buildingsOnly())
         .build()
         );
     }
@@ -80,8 +77,7 @@ public final class WorldRuntime {
     GameState state,
     SeamGroupSet groups,
     EntityCollisions collisions,
-    SeamClock clock,
-    SeamRuntimeUpdatePolicy updatePolicy
+    SeamClock clock
     ){
         this.id = id;
         this.name = name;
@@ -91,7 +87,6 @@ public final class WorldRuntime {
         this.groups = groups;
         this.collisions = collisions;
         this.clock = clock;
-        this.updatePolicy = updatePolicy;
         this.status = Status.loaded;
     }
 
@@ -104,8 +99,7 @@ public final class WorldRuntime {
         Vars.state,
         SeamGroupSet.wrapCurrent(),
         Vars.collisions,
-        new SeamClock(),
-        SeamRuntimeUpdatePolicy.disabled()
+        new SeamClock()
         );
     }
 
@@ -144,28 +138,8 @@ public final class WorldRuntime {
         return SeamRuntimeValidator.worldReady(world);
     }
 
-    public SeamRuntimeUpdatePolicy updatePolicy(){
-        return updatePolicy;
-    }
-
-    public void updatePolicy(SeamRuntimeUpdatePolicy updatePolicy){
-        if(updatePolicy == null){
-            throw new NullPointerException("updatePolicy");
-        }
-
-        if(main() && updatePolicy.enabled){
-            throw new IllegalStateException("Main runtime cannot be updated by SeamEngine.");
-        }
-
-        this.updatePolicy = updatePolicy;
-    }
-
     public boolean updateEnabled(){
-        return updatePolicy.enabled && loaded() && !main();
-    }
-
-    public void updateEnabled(boolean updateEnabled){
-        updatePolicy(updatePolicy.withEnabled(updateEnabled));
+        return loaded() && !main();
     }
 
     public boolean validateOnUpdate(){
@@ -210,7 +184,6 @@ public final class WorldRuntime {
         groups.clear();
         clock.reset();
         status = Status.disposed;
-        updatePolicy = updatePolicy.withEnabled(false);
     }
 
     private void setStatus(Status status){
@@ -225,7 +198,6 @@ public final class WorldRuntime {
         ", kind=" + kind +
         ", status=" + status +
         ", clock=" + clock +
-        ", updatePolicy=" + updatePolicy +
         '}';
     }
 }

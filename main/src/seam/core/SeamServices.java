@@ -7,11 +7,11 @@ import seam.runtime.*;
 import seam.runtime.WorldRuntime;
 import seam.runtime.control.*;
 
-public final class SeamServices implements ApplicationListener {
+public class SeamServices implements ApplicationListener {
 	public final SeamRuntimeStack stack = new SeamRuntimeStack();
 	public final SeamRuntimeRegistry runtimes = new SeamRuntimeRegistry();
 	public final SeamRuntimeExecutor executor = new SeamRuntimeExecutor(runtimes, stack);
-	public final SeamEngine engine = new SeamEngine(runtimes, stack, executor);
+	public final RuntimeLogic engine = new RuntimeLogic(runtimes, stack, executor);
 
 	public final SeamRenderer renderer = new SeamRenderer();
 
@@ -19,8 +19,6 @@ public final class SeamServices implements ApplicationListener {
 	private boolean eventsInstalled;
 
 	public void init(Runnable refresh) {
-		SeamBootstrapValidator.validate();
-
 		refreshMainRuntime();
 		installEvents(refresh);
 
